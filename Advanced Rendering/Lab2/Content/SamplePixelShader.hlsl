@@ -1,5 +1,14 @@
 #define NOBJECTS 3
 
+// A constant buffer that stores the three basic column-major matrices for composing geometry.
+cbuffer ModelViewProjectionConstantBuffer : register(b0)
+{
+    matrix model;
+    matrix view;
+    matrix projection;
+    float4 eyePosition;
+};
+
 // Per-pixel color data passed through the pixel shader.
 struct PixelShaderInput
 {
@@ -26,8 +35,8 @@ static float nearPlane = 1.0f;
 static float farPlane = 1000.0f;
 
 static float4 lightColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
-static float3 lightPos = float3(0.0f, 0.0f, 0.0f);
-static float4 backgroundColor = float4(0.1f, 0.2f, 0.3f, 1.0f);
+static float3 lightPos = float3(0.0f, 0.0f, 15.0f);
+static float4 backgroundColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
 static float4 sphereColor_1 = float4(1.0f, 0.0f, 0.0f, 1.0f);
 static float4 sphereColor_2 = float4(0.0f, 1.0f, 0.0f, 1.0f);
@@ -37,8 +46,8 @@ static float shininess = 40.0f;
 static Sphere objects[NOBJECTS] =
 {
     { 0.0f, 0.0f, -3.0f, 1.0f, sphereColor_1, 0.3f, 0.5f, 0.7f, shininess },
-    { -3.0f, 0.0f, -2.0f, 1.0f, sphereColor_2, 0.5f, 0.7f, 0.4f, shininess },
-    { 3.0f, 0.0f, -2.0f, 1.0f, sphereColor_3, 0.5f, 0.3f, 0.3f, shininess }
+    { -3.0f, 0.0f, 2.0f, 1.0f, sphereColor_2, 0.5f, 0.7f, 0.4f, shininess },
+    { 3.0f, 0.0f, 2.0f, 1.0f, sphereColor_3, 0.5f, 0.3f, 0.3f, shininess }
 };
 
 float SphereIntersect(Sphere s, Ray ray, out bool hit);
@@ -51,16 +60,22 @@ float4 RayTracing(Ray eyeray);
 // A pass-through function for the (interpolated) color data.
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-    float zoom = 2.5f;
+    float zoom = 1.0f;
     float2 xy = zoom * input.canvasCoord;
     float distEye2Canvas = nearPlane;
     float3 PixelPos = float3(xy, -distEye2Canvas);
     
+    float3 xaxis = view._m00_m01_m02;
+    float3 yaxis = view._m10_m11_m12;
+    float3 zaxis = view._m20_m21_m22;
+    
     Ray eyeray;
-    eyeray.o = Eye.xyz;
-    eyeray.d = normalize(PixelPos - Eye.xyz);
+    eyeray.o = eyePosition.xyz;
+    eyeray.d = normalize(PixelPos.x * xaxis + PixelPos.y * yaxis + PixelPos.z * zaxis);
+    //eyeray.d = normalize(PixelPos - eyePosition.xyz);
     
     return RayTracing(eyeray);
+    return float4(PixelPos, 1.0f);
 }
 
 float SphereIntersect(Sphere s, Ray ray, out bool hit)
