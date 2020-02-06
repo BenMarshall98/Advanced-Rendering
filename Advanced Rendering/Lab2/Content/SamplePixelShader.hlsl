@@ -260,10 +260,11 @@ float4 SphereShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, flo
     
     float4 diff = sphereObjects[hitobj].color * sphereObjects[hitobj].Kd;
     float4 spec = sphereObjects[hitobj].color * sphereObjects[hitobj].ks;
+    float4 amb = sphereObjects[hitobj].color * 0.1f;
     
     float shadow = 1.0f - Shadow(hitPos, lightPos);
     
-    return lightColor * lightIntensity * shadow * Phong(normal, lightDir, viewDir, sphereObjects[hitobj].shininess, diff, spec);
+    return lightColor * lightIntensity * ((shadow * Phong(normal, lightDir, viewDir, sphereObjects[hitobj].shininess, diff, spec)) + amb);
 }
 
 float4 PlaneShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lightIntensity)
@@ -272,10 +273,11 @@ float4 PlaneShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, floa
     
     float4 diff = planeObjects[hitobj].color * planeObjects[hitobj].Kd;
     float4 spec = planeObjects[hitobj].color * planeObjects[hitobj].ks;
+    float4 amb = planeObjects[hitobj].color * 0.1f;
     
     float shadow = 1.0f - Shadow(hitPos, lightPos);
     
-    return lightColor * lightIntensity * shadow * Phong(normal, lightDir, viewDir, planeObjects[hitobj].shininess, diff, spec);
+    return lightColor * lightIntensity * ((shadow * Phong(normal, lightDir, viewDir, planeObjects[hitobj].shininess, diff, spec)) + amb);
 }
 
 float Shadow(float3 hitPos, float3 lightPos)
@@ -293,7 +295,7 @@ float Shadow(float3 hitPos, float3 lightPos)
         
         if (hit && t < length(hitPos - lightPos))
         {
-            anyHit = 0.8f;
+            anyHit = 1.0f;
         }
     }
     
