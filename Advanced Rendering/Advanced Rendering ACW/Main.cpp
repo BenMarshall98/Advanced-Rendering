@@ -2,13 +2,13 @@
 #include "Main.h"
 #include "Common\DirectXHelper.h"
 
-using namespace AdvancedRendering;
+using namespace Advanced_Rendering;
 using namespace Windows::Foundation;
 using namespace Windows::System::Threading;
 using namespace Concurrency;
 
 // Loads and initializes application assets when the application is loaded.
-Advanced_Rendering_ACWMain::Advanced_Rendering_ACWMain(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
+Main::Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
 	m_deviceResources(deviceResources)
 {
 	// Register to be notified if the Device is lost or recreated
@@ -27,21 +27,21 @@ Advanced_Rendering_ACWMain::Advanced_Rendering_ACWMain(const std::shared_ptr<DX:
 	*/
 }
 
-Advanced_Rendering_ACWMain::~Advanced_Rendering_ACWMain()
+Main::~Main()
 {
 	// Deregister device notification
 	m_deviceResources->RegisterDeviceNotify(nullptr);
 }
 
 // Updates application state when the window size changes (e.g. device orientation change)
-void Advanced_Rendering_ACWMain::CreateWindowSizeDependentResources() 
+void Main::CreateWindowSizeDependentResources() 
 {
 	// TODO: Replace this with the size-dependent initialization of your app's content.
 	m_sceneRenderer->CreateWindowSizeDependentResources();
 }
 
 // Updates the application state once per frame.
-void Advanced_Rendering_ACWMain::Update() 
+void Main::Update() 
 {
 	// Update scene objects.
 	m_timer.Tick([&]()
@@ -54,7 +54,7 @@ void Advanced_Rendering_ACWMain::Update()
 
 // Renders the current frame according to the current application state.
 // Returns true if the frame was rendered and is ready to be displayed.
-bool Advanced_Rendering_ACWMain::Render() 
+bool Main::Render() 
 {
 	// Don't try to render anything before the first Update.
 	if (m_timer.GetFrameCount() == 0)
@@ -85,14 +85,14 @@ bool Advanced_Rendering_ACWMain::Render()
 }
 
 // Notifies renderers that device resources need to be released.
-void Advanced_Rendering_ACWMain::OnDeviceLost()
+void Main::OnDeviceLost()
 {
 	m_sceneRenderer->ReleaseDeviceDependentResources();
 	m_fpsTextRenderer->ReleaseDeviceDependentResources();
 }
 
 // Notifies renderers that device resources may now be recreated.
-void Advanced_Rendering_ACWMain::OnDeviceRestored()
+void Main::OnDeviceRestored()
 {
 	m_sceneRenderer->CreateDeviceDependentResources();
 	m_fpsTextRenderer->CreateDeviceDependentResources();
