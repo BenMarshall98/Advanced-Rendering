@@ -254,6 +254,10 @@
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="Common\DeviceResources.h" />
+    <ClInclude Include="DomainShader.h" />
+    <ClInclude Include="FragmentShader.h" />
+    <ClInclude Include="GeometryShader.h" />
+    <ClInclude Include="HullShader.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Common\DirectXHelper.h" />
     <ClInclude Include="Common\StepTimer.h" />
@@ -261,10 +265,17 @@
     <ClInclude Include="Content\SampleFpsTextRenderer.h" />
     <ClInclude Include="Content\ShaderStructures.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShaderProgram.h" />
+    <ClInclude Include="VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Common\DeviceResources.cpp" />
+    <ClCompile Include="DomainShader.cpp" />
+    <ClCompile Include="FragmentShader.cpp" />
+    <ClCompile Include="GeometryShader.cpp" />
+    <ClCompile Include="HullShader.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Content\SampleFpsTextRenderer.cpp" />
     <ClCompile Include="Content\Sample3DSceneRenderer.cpp" />
@@ -278,6 +289,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShaderProgram.cpp" />
+    <ClCompile Include="VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

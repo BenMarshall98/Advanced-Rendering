@@ -4,6 +4,9 @@
 #include "ShaderStructures.h"
 #include "..\Common\StepTimer.h"
 
+#include "VertexShader.h"
+#include "FragmentShader.h"
+
 namespace Advanced_Rendering
 {
 	// This sample renderer instantiates a basic rendering pipeline.
@@ -29,12 +32,12 @@ namespace Advanced_Rendering
 		// Cached pointer to device resources.
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 
+		std::shared_ptr<VertexShader> mVertexShader;
+		std::shared_ptr<FragmentShader> mFragmentShader;
+
 		// Direct3D resources for cube geometry.
-		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_inputLayout;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_vertexBuffer;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_indexBuffer;
-		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_vertexShader;
-		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pixelShader;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_constantBuffer;
 
 		// System resources for cube geometry.

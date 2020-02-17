@@ -62,16 +62,61 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
+    <Filter Include="Common\Shader">
+      <UniqueIdentifier>{f57cae76-61a0-4258-92e3-4bc65f179f09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ShaderProgram.cpp">
+      <Filter>Common\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexShader.cpp">
+      <Filter>Common\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="FragmentShader.cpp">
+      <Filter>Common\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryShader.cpp">
+      <Filter>Common\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="DomainShader.cpp">
+      <Filter>Common\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="HullShader.cpp">
+      <Filter>Common\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Common\Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Main.h" />
+    <ClInclude Include="ShaderProgram.h">
+      <Filter>Common\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexShader.h">
+      <Filter>Common\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="FragmentShader.h">
+      <Filter>Common\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryShader.h">
+      <Filter>Common\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="DomainShader.h">
+      <Filter>Common\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="HullShader.h">
+      <Filter>Common\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Common\Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
