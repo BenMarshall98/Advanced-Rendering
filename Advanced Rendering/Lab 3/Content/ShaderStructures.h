@@ -8,6 +8,7 @@ namespace Lab_3
 		DirectX::XMFLOAT4X4 model;
 		DirectX::XMFLOAT4X4 view;
 		DirectX::XMFLOAT4X4 projection;
+		DirectX::XMFLOAT4 eyePosition;
 	};
 
 	// Used to send per-vertex data to the vertex shader.
