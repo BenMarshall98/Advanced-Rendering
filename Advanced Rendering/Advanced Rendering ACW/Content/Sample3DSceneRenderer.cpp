@@ -114,30 +114,11 @@ void Sample3DSceneRenderer::Render()
 		return;
 	}
 
-	auto context = m_deviceResources->GetD3DDeviceContext();
-
 	// Prepare the constant buffer to send it to the graphics device.
-	context->UpdateSubresource1(
-		m_constantBuffer.Get(),
-		0,
-		NULL,
-		&m_constantBufferData,
-		0,
-		0,
-		0
-		);
+	mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
+	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
 
 	mVertexShader->UseProgram(m_deviceResources);
-
-	// Send the constant buffer to the graphics device.
-	context->VSSetConstantBuffers1(
-		0,
-		1,
-		m_constantBuffer.GetAddressOf(),
-		nullptr,
-		nullptr
-		);
-
 	mFragmentShader->UseProgram(m_deviceResources);
 
 	mModel->UseModel(m_deviceResources);
@@ -150,15 +131,10 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 	mVertexShader->Load(m_deviceResources);
 	mFragmentShader->Load(m_deviceResources);
+
+	mConstantBuffer = std::make_shared<ConstantBuffer<ModelViewProjectionConstantBuffer>>();
 	
-	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(ModelViewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
-	DX::ThrowIfFailed(
-		m_deviceResources->GetD3DDevice()->CreateBuffer(
-			&constantBufferDesc,
-			nullptr,
-			&m_constantBuffer
-		)
-	);
+	mConstantBuffer->Load(m_deviceResources);
 
 	// Load mesh vertices. Each vertex has a position and a color.
 	static const std::vector<VertexPositionColor> cubeVertices = 
@@ -211,6 +187,6 @@ void Sample3DSceneRenderer::ReleaseDeviceDependentResources()
 	m_loadingComplete = false;
 	mVertexShader->Reset();
 	mFragmentShader->Reset();
-	m_constantBuffer.Reset();
+	mConstantBuffer->Reset();
 	mModel->Reset();
 }

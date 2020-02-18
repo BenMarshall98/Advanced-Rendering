@@ -7,6 +7,7 @@
 #include "VertexShader.h"
 #include "FragmentShader.h"
 #include "Model.h"
+#include "ConstantBuffer.h"
 
 namespace Advanced_Rendering
 {
@@ -36,9 +37,7 @@ namespace Advanced_Rendering
 		std::shared_ptr<VertexShader> mVertexShader;
 		std::shared_ptr<FragmentShader> mFragmentShader;
 		std::shared_ptr<Model> mModel;
-
-		// Direct3D resources for cube geometry.
-		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_constantBuffer;
+		std::shared_ptr<ConstantBuffer<ModelViewProjectionConstantBuffer>> mConstantBuffer;
 
 		// System resources for cube geometry.
 		ModelViewProjectionConstantBuffer	m_constantBufferData;

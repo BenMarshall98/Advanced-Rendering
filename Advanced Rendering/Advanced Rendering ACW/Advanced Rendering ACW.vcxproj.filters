@@ -68,6 +68,9 @@
     <Filter Include="Common\Model">
       <UniqueIdentifier>{55647e48-2c83-43bb-bd79-567ad2f53774}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common\ConstantBuffer">
+      <UniqueIdentifier>{640ca448-40fa-46f0-b138-b7a8a17292a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
@@ -97,6 +100,9 @@
     <ClCompile Include="Model.cpp">
       <Filter>Common\Model</Filter>
     </ClCompile>
+    <ClCompile Include="ConstantBuffer.cpp">
+      <Filter>Common\ConstantBuffer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -125,6 +131,9 @@
     </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Common\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>Common\ConstantBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

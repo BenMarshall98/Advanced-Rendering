@@ -254,6 +254,7 @@
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="Common\DeviceResources.h" />
+    <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="DomainShader.h" />
     <ClInclude Include="FragmentShader.h" />
     <ClInclude Include="GeometryShader.h" />
@@ -273,6 +274,7 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Common\DeviceResources.cpp" />
+    <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="DomainShader.cpp" />
     <ClCompile Include="FragmentShader.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
