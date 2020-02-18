@@ -12,7 +12,6 @@ using namespace Windows::Foundation;
 Sample3DSceneRenderer::Sample3DSceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
 	m_loadingComplete(false),
 	m_degreesPerSecond(45),
-	m_indexCount(0),
 	m_tracking(false),
 	m_deviceResources(deviceResources)
 {
@@ -128,25 +127,6 @@ void Sample3DSceneRenderer::Render()
 		0
 		);
 
-	// Each vertex is one instance of the VertexPositionColor struct.
-	UINT stride = sizeof(VertexPositionColor);
-	UINT offset = 0;
-	context->IASetVertexBuffers(
-		0,
-		1,
-		m_vertexBuffer.GetAddressOf(),
-		&stride,
-		&offset
-		);
-
-	context->IASetIndexBuffer(
-		m_indexBuffer.Get(),
-		DXGI_FORMAT_R16_UINT, // Each index is one 16-bit unsigned integer (short).
-		0
-		);
-
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	mVertexShader->UseProgram(m_deviceResources);
 
 	// Send the constant buffer to the graphics device.
@@ -160,12 +140,7 @@ void Sample3DSceneRenderer::Render()
 
 	mFragmentShader->UseProgram(m_deviceResources);
 
-	// Draw the objects.
-	context->DrawIndexed(
-		m_indexCount,
-		0,
-		0
-		);
+	mModel->UseModel(m_deviceResources);
 }
 
 void Sample3DSceneRenderer::CreateDeviceDependentResources()
@@ -186,7 +161,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	);
 
 	// Load mesh vertices. Each vertex has a position and a color.
-	static const VertexPositionColor cubeVertices[] = 
+	static const std::vector<VertexPositionColor> cubeVertices = 
 	{
 		{XMFLOAT3(-0.5f, -0.5f, -0.5f), XMFLOAT3(0.0f, 0.0f, 0.0f)},
 		{XMFLOAT3(-0.5f, -0.5f,  0.5f), XMFLOAT3(0.0f, 0.0f, 1.0f)},
@@ -198,25 +173,12 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 		{XMFLOAT3( 0.5f,  0.5f,  0.5f), XMFLOAT3(1.0f, 1.0f, 1.0f)},
 	};
 
-	D3D11_SUBRESOURCE_DATA vertexBufferData = {0};
-	vertexBufferData.pSysMem = cubeVertices;
-	vertexBufferData.SysMemPitch = 0;
-	vertexBufferData.SysMemSlicePitch = 0;
-	CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(cubeVertices), D3D11_BIND_VERTEX_BUFFER);
-	DX::ThrowIfFailed(
-		m_deviceResources->GetD3DDevice()->CreateBuffer(
-			&vertexBufferDesc,
-			&vertexBufferData,
-			&m_vertexBuffer
-			)
-		);
-
 	// Load mesh indices. Each trio of indices represents
 	// a triangle to be rendered on the screen.
 	// For example: 0,2,1 means that the vertices with indexes
 	// 0, 2 and 1 from the vertex buffer compose the 
 	// first triangle of this mesh.
-	static const unsigned short cubeIndices [] =
+	static const std::vector<unsigned int> cubeIndices =
 	{
 		0,2,1, // -x
 		1,2,3,
@@ -237,20 +199,8 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 		1,7,5,
 	};
 
-	m_indexCount = ARRAYSIZE(cubeIndices);
-
-	D3D11_SUBRESOURCE_DATA indexBufferData = {0};
-	indexBufferData.pSysMem = cubeIndices;
-	indexBufferData.SysMemPitch = 0;
-	indexBufferData.SysMemSlicePitch = 0;
-	CD3D11_BUFFER_DESC indexBufferDesc(sizeof(cubeIndices), D3D11_BIND_INDEX_BUFFER);
-	DX::ThrowIfFailed(
-		m_deviceResources->GetD3DDevice()->CreateBuffer(
-			&indexBufferDesc,
-			&indexBufferData,
-			&m_indexBuffer
-			)
-		);
+	mModel = std::make_shared<Model>(cubeVertices, cubeIndices);
+	mModel->Load(m_deviceResources);
 
 	// Once the cube is loaded, the object is ready to be rendered.
 	m_loadingComplete = true;
@@ -262,6 +212,5 @@ void Sample3DSceneRenderer::ReleaseDeviceDependentResources()
 	mVertexShader->Reset();
 	mFragmentShader->Reset();
 	m_constantBuffer.Reset();
-	m_vertexBuffer.Reset();
-	m_indexBuffer.Reset();
+	mModel->Reset();
 }
