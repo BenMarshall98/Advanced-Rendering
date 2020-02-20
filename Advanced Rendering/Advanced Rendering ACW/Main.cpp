@@ -6,6 +6,7 @@ using namespace Advanced_Rendering;
 using namespace Windows::Foundation;
 using namespace Windows::System::Threading;
 using namespace Concurrency;
+using namespace Windows::System;
 
 // Loads and initializes application assets when the application is loaded.
 Main::Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
@@ -97,4 +98,92 @@ void Main::OnDeviceRestored()
 	m_sceneRenderer->CreateDeviceDependentResources();
 	m_fpsTextRenderer->CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
+}
+
+void Main::OnKeyUp(const Windows::System::VirtualKey & pKey)
+{
+	if (pKey == VirtualKey::A)
+	{
+		m_sceneRenderer->mCamera->rotateLeft(false);
+	}
+	else if (pKey == VirtualKey::S)
+	{
+		m_sceneRenderer->mCamera->rotateDown(false);
+	}
+	else if (pKey == VirtualKey::W)
+	{
+		m_sceneRenderer->mCamera->rotateUp(false);
+	}
+	else if (pKey == VirtualKey::D)
+	{
+		m_sceneRenderer->mCamera->rotateRight(false);
+	}
+	else if (pKey == VirtualKey::I)
+	{
+		m_sceneRenderer->mCamera->panUp(false);
+	}
+	else if (pKey == VirtualKey::K)
+	{
+		m_sceneRenderer->mCamera->panDown(false);
+	}
+	else if (pKey == VirtualKey::J)
+	{
+		m_sceneRenderer->mCamera->panLeft(false);
+	}
+	else if (pKey == VirtualKey::L)
+	{
+		m_sceneRenderer->mCamera->panRight(false);
+	}
+	else if (pKey == VirtualKey::U)
+	{
+		m_sceneRenderer->mCamera->panForward(false);
+	}
+	else if (pKey == VirtualKey::O)
+	{
+		m_sceneRenderer->mCamera->panBackward(false);
+	}
+}
+
+void Main::OnKeyDown(const Windows::System::VirtualKey & pKey)
+{
+	if (pKey == VirtualKey::A)
+	{
+		m_sceneRenderer->mCamera->rotateLeft(true);
+	}
+	else if (pKey == VirtualKey::S)
+	{
+		m_sceneRenderer->mCamera->rotateDown(true);
+	}
+	else if (pKey == VirtualKey::W)
+	{
+		m_sceneRenderer->mCamera->rotateUp(true);
+	}
+	else if (pKey == VirtualKey::D)
+	{
+		m_sceneRenderer->mCamera->rotateRight(true);
+	}
+	else if (pKey == VirtualKey::I)
+	{
+		m_sceneRenderer->mCamera->panUp(true);
+	}
+	else if (pKey == VirtualKey::K)
+	{
+		m_sceneRenderer->mCamera->panDown(true);
+	}
+	else if (pKey == VirtualKey::J)
+	{
+		m_sceneRenderer->mCamera->panLeft(true);
+	}
+	else if (pKey == VirtualKey::L)
+	{
+		m_sceneRenderer->mCamera->panRight(true);
+	}
+	else if (pKey == VirtualKey::U)
+	{
+		m_sceneRenderer->mCamera->panForward(true);
+	}
+	else if (pKey == VirtualKey::O)
+	{
+		m_sceneRenderer->mCamera->panBackward(true);
+	}
 }

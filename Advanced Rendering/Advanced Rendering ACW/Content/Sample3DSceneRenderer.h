@@ -8,6 +8,7 @@
 #include "FragmentShader.h"
 #include "Model.h"
 #include "ConstantBuffer.h"
+#include "Camera.h"
 
 namespace Advanced_Rendering
 {
@@ -25,6 +26,8 @@ namespace Advanced_Rendering
 		void TrackingUpdate(float positionX);
 		void StopTracking();
 		bool IsTracking() { return m_tracking; }
+
+		std::unique_ptr<Camera> mCamera; //TODO: Move
 
 
 	private:

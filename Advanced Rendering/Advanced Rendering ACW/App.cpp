@@ -66,6 +66,12 @@ void App::SetWindow(CoreWindow^ window)
 	window->Closed += 
 		ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &App::OnWindowClosed);
 
+	window->KeyDown +=
+		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::OnKeyDown);
+
+	window->KeyUp +=
+		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::OnKeyUp);
+
 	DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
 
 	currentDisplayInformation->DpiChanged +=
@@ -171,6 +177,19 @@ void App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 {
 	m_windowClosed = true;
 }
+
+void App::OnKeyUp(_In_ CoreWindow^ sender, _In_ KeyEventArgs^ args)
+{
+	auto key = args->VirtualKey;
+	m_main->OnKeyUp(key);
+}
+
+void App::OnKeyDown(_In_ CoreWindow^ sender, _In_ KeyEventArgs^ args)
+{
+	auto key = args->VirtualKey;
+	m_main->OnKeyDown(key);
+}
+
 
 // DisplayInformation event handlers.
 

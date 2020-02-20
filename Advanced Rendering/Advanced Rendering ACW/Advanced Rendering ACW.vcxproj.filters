@@ -103,6 +103,7 @@
     <ClCompile Include="ConstantBuffer.cpp">
       <Filter>Common\ConstantBuffer</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -135,6 +136,7 @@
     <ClInclude Include="ConstantBuffer.h">
       <Filter>Common\ConstantBuffer</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">

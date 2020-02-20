@@ -57,11 +57,13 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources()
 		);
 
 	// Eye is at (0,0.7,1.5), looking at point (0,-0.1,0) with the up-vector along the y-axis.
-	static const XMVECTORF32 eye = { 0.0f, 0.7f, 1.5f, 0.0f };
-	static const XMVECTORF32 at = { 0.0f, -0.1f, 0.0f, 0.0f };
-	static const XMVECTORF32 up = { 0.0f, 1.0f, 0.0f, 0.0f };
+	static const XMFLOAT3 eye = { 0.0f, 0.0f, 5.0f };
+	static const XMFLOAT3 at = { 0.0f, 0.0f, 0.0f };
+	static const XMFLOAT3 up = { 0.0f, 1.0f, 0.0f };
 
-	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
+	mCamera = std::make_unique<Camera>(eye, up, at);
+
+	//XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
 }
 
 // Called once per frame, rotates the cube and calculates the model and view matrices.
@@ -73,6 +75,8 @@ void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 		float radiansPerSecond = XMConvertToRadians(m_degreesPerSecond);
 		double totalRotation = timer.GetTotalSeconds() * radiansPerSecond;
 		float radians = static_cast<float>(fmod(totalRotation, XM_2PI));
+
+		mCamera->update(m_constantBufferData, timer);
 
 		Rotate(radians);
 	}
@@ -117,6 +121,7 @@ void Sample3DSceneRenderer::Render()
 	// Prepare the constant buffer to send it to the graphics device.
 	mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
 	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+	mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
 	mVertexShader->UseProgram(m_deviceResources);
 	mFragmentShader->UseProgram(m_deviceResources);
@@ -139,14 +144,10 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	// Load mesh vertices. Each vertex has a position and a color.
 	static const std::vector<VertexPositionColor> cubeVertices = 
 	{
-		{XMFLOAT3(-0.5f, -0.5f, -0.5f), XMFLOAT3(0.0f, 0.0f, 0.0f)},
-		{XMFLOAT3(-0.5f, -0.5f,  0.5f), XMFLOAT3(0.0f, 0.0f, 1.0f)},
-		{XMFLOAT3(-0.5f,  0.5f, -0.5f), XMFLOAT3(0.0f, 1.0f, 0.0f)},
-		{XMFLOAT3(-0.5f,  0.5f,  0.5f), XMFLOAT3(0.0f, 1.0f, 1.0f)},
-		{XMFLOAT3( 0.5f, -0.5f, -0.5f), XMFLOAT3(1.0f, 0.0f, 0.0f)},
-		{XMFLOAT3( 0.5f, -0.5f,  0.5f), XMFLOAT3(1.0f, 0.0f, 1.0f)},
-		{XMFLOAT3( 0.5f,  0.5f, -0.5f), XMFLOAT3(1.0f, 1.0f, 0.0f)},
-		{XMFLOAT3( 0.5f,  0.5f,  0.5f), XMFLOAT3(1.0f, 1.0f, 1.0f)},
+		{XMFLOAT3(-0.5f, 0.0f, -0.5f), XMFLOAT3(0.0f, 0.0f, 0.0f)},
+		{XMFLOAT3(-0.5f, 0.0f,  0.5f), XMFLOAT3(0.0f, 0.0f, 1.0f)},
+		{XMFLOAT3( 0.5f, 0.0f, -0.5f), XMFLOAT3(0.0f, 1.0f, 0.0f)},
+		{XMFLOAT3( 0.5f, 0.0f,  0.5f), XMFLOAT3(0.0f, 1.0f, 1.0f)}
 	};
 
 	// Load mesh indices. Each trio of indices represents
@@ -156,23 +157,8 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	// first triangle of this mesh.
 	static const std::vector<unsigned int> cubeIndices =
 	{
-		0,2,1, // -x
-		1,2,3,
-
-		4,5,6, // +x
-		5,7,6,
-
-		0,1,5, // -y
-		0,5,4,
-
-		2,6,7, // +y
-		2,7,3,
-
-		0,4,6, // -z
-		0,6,2,
-
-		1,3,7, // +z
-		1,7,5,
+		0,1,2,
+		1,3,2
 	};
 
 	mModel = std::make_shared<Model>(cubeVertices, cubeIndices);

@@ -17,6 +17,9 @@ namespace Advanced_Rendering
 		void Update();
 		bool Render();
 
+		void OnKeyUp(const Windows::System::VirtualKey & pKey);
+		void OnKeyDown(const Windows::System::VirtualKey & pKey);
+
 		// IDeviceNotify
 		virtual void OnDeviceLost();
 		virtual void OnDeviceRestored();
