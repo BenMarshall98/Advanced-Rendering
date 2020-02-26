@@ -126,11 +126,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
     float2 xy = zoom * input.canvasCoord;
     float distEye2Canvas = nearPlane;
     float3 PixelPos = float3(xy, -distEye2Canvas);
-    
-    //float3 xaxis = view._m00_m01_m02;
-    //float3 yaxis = view._m10_m11_m12;
-    //float3 zaxis = view._m20_m21_m22;
-    
+
     float3 xaxis = view._m00_m10_m20;
     float3 yaxis = view._m01_m11_m21;
     float3 zaxis = view._m02_m12_m22;
@@ -138,10 +134,8 @@ float4 main(PixelShaderInput input) : SV_TARGET
     Ray eyeray;
     eyeray.o = eyePosition.xyz;
     eyeray.d = normalize(PixelPos.x * xaxis + PixelPos.y * yaxis + PixelPos.z * zaxis);
-    //eyeray.d = normalize(PixelPos - eyePosition.xyz);
     
     return RayTracing(eyeray);
-    return float4(PixelPos, 1.0f);
 }
 
 float SphereIntersect(Sphere s, Ray ray, out bool hit)
