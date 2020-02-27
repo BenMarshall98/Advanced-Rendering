@@ -132,7 +132,7 @@ void Sample3DSceneRenderer::Render()
 void Sample3DSceneRenderer::CreateDeviceDependentResources()
 {
 	mVertexShader = std::make_shared<VertexShader>(L"RayVertexShader.cso");
-	mFragmentShader = std::make_shared<FragmentShader>(L"RayMarchingPixelShader.cso");
+	mFragmentShader = std::make_shared<FragmentShader>(L"RayTracingPixelShader.cso");
 
 	mVertexShader->Load(m_deviceResources);
 	mFragmentShader->Load(m_deviceResources);
