@@ -3,9 +3,6 @@
 #include "..\Common\DirectXHelper.h"
 #include "..\Common\DeviceResources.h"
 
-using namespace DirectX;
-using namespace Windows::Foundation;
-
 class ShaderProgram
 {
 protected:

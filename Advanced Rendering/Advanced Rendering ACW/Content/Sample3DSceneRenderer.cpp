@@ -123,22 +123,70 @@ void Sample3DSceneRenderer::Render()
 	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
 	mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
-	mVertexShader->UseProgram(m_deviceResources);
-	mFragmentShader->UseProgram(m_deviceResources);
+	//Ray Tracing
+	{
+		mRayTracingFramebuffer->UseFramebuffer(m_deviceResources);
+
+		mRayVertexShader->UseProgram(m_deviceResources);
+		mRayTracingFragmentShader->UseProgram(m_deviceResources);
+
+		mModel->UseModel(m_deviceResources);
+
+		mRayTracingFramebuffer->ReleaseFramebuffer(m_deviceResources);
+	}
+
+	//Ray Marching
+	{
+		mRayMarchingFramebuffer->UseFramebuffer(m_deviceResources);
+
+		mRayVertexShader->UseProgram(m_deviceResources);
+		mRayMarchingFragmentShader->UseProgram(m_deviceResources);
+
+		mModel->UseModel(m_deviceResources);
+
+		mRayTracingFramebuffer->ReleaseFramebuffer(m_deviceResources);
+	}
+
+	const auto context = m_deviceResources->GetD3DDeviceContext();
+
+	ID3D11RenderTargetView *const targets[1] = { m_deviceResources->GetBackBufferRenderTargetView() };
+	context->OMSetRenderTargets(1, targets, m_deviceResources->GetDepthStencilView());
+
+	context->PSSetSamplers(0, 1, mSampler.GetAddressOf());
+
+	mRayTracingFramebuffer->UseTexture(m_deviceResources, 0);
+	mRayMarchingFramebuffer->UseTexture(m_deviceResources, 2);
+
+	mPingPongVertexShader->UseProgram(m_deviceResources);
+	mPingPongFragmentShader->UseProgram(m_deviceResources);
 
 	mModel->UseModel(m_deviceResources);
+
+	mRayTracingFramebuffer->ReleaseTexture(m_deviceResources, 0);
+	mRayMarchingFramebuffer->ReleaseTexture(m_deviceResources, 2);
 }
 
 void Sample3DSceneRenderer::CreateDeviceDependentResources()
 {
-	mVertexShader = std::make_shared<VertexShader>(L"RayVertexShader.cso");
-	mFragmentShader = std::make_shared<FragmentShader>(L"RayTracingPixelShader.cso");
+	mRayVertexShader = std::make_unique<VertexShader>(L"RayVertexShader.cso");
+	mRayTracingFragmentShader = std::make_unique<FragmentShader>(L"RayTracingPixelShader.cso");
+	mRayMarchingFragmentShader = std::make_unique<FragmentShader>(L"RayMarchingPixelShader.cso");
+	mPingPongVertexShader = std::make_unique<VertexShader>(L"PingPongVertexShader.cso");
+	mPingPongFragmentShader = std::make_unique<FragmentShader>(L"PingPongPixelShader.cso");
 
-	mVertexShader->Load(m_deviceResources);
-	mFragmentShader->Load(m_deviceResources);
+	mRayVertexShader->Load(m_deviceResources);
+	mRayTracingFragmentShader->Load(m_deviceResources);
+	mRayMarchingFragmentShader->Load(m_deviceResources);
+	mPingPongVertexShader->Load(m_deviceResources);
+	mPingPongFragmentShader->Load(m_deviceResources);
 
-	mConstantBuffer = std::make_shared<ConstantBuffer<ModelViewProjectionConstantBuffer>>();
-	
+	mRayTracingFramebuffer = std::make_unique<Framebuffer>();
+	mRayMarchingFramebuffer = std::make_unique<Framebuffer>();
+
+	mRayTracingFramebuffer->LoadFramebuffer(m_deviceResources);
+	mRayMarchingFramebuffer->LoadFramebuffer(m_deviceResources);
+
+	mConstantBuffer = std::make_unique<ConstantBuffer<ModelViewProjectionConstantBuffer>>();
 	mConstantBuffer->Load(m_deviceResources);
 
 	// Load mesh vertices. Each vertex has a position and a color.
@@ -161,8 +209,18 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 		1,3,2
 	};
 
-	mModel = std::make_shared<Model>(cubeVertices, cubeIndices);
+	mModel = std::make_unique<Model>(cubeVertices, cubeIndices);
 	mModel->Load(m_deviceResources);
+
+	D3D11_SAMPLER_DESC samplerDesc;
+	ZeroMemory(&samplerDesc, sizeof samplerDesc);
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+
+	m_deviceResources->GetD3DDevice()->CreateSamplerState(&samplerDesc, mSampler.ReleaseAndGetAddressOf());
 
 	// Once the cube is loaded, the object is ready to be rendered.
 	m_loadingComplete = true;
@@ -171,8 +229,8 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 void Sample3DSceneRenderer::ReleaseDeviceDependentResources()
 {
 	m_loadingComplete = false;
-	mVertexShader->Reset();
-	mFragmentShader->Reset();
+	mRayVertexShader->Reset();
+	mRayTracingFragmentShader->Reset();
 	mConstantBuffer->Reset();
 	mModel->Reset();
 }

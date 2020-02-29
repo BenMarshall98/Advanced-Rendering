@@ -9,6 +9,7 @@
 #include "Model.h"
 #include "ConstantBuffer.h"
 #include "Camera.h"
+#include "Framebuffer.h"
 
 namespace Advanced_Rendering
 {
@@ -37,10 +38,23 @@ namespace Advanced_Rendering
 		// Cached pointer to device resources.
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 
-		std::shared_ptr<VertexShader> mVertexShader;
-		std::shared_ptr<FragmentShader> mFragmentShader;
-		std::shared_ptr<Model> mModel;
-		std::shared_ptr<ConstantBuffer<ModelViewProjectionConstantBuffer>> mConstantBuffer;
+		std::unique_ptr<VertexShader> mRayVertexShader;
+		std::unique_ptr<FragmentShader> mRayMarchingFragmentShader;
+		std::unique_ptr<FragmentShader> mRayTracingFragmentShader;
+
+		std::unique_ptr<Framebuffer> mRayTracingFramebuffer;
+		std::unique_ptr<Framebuffer> mRayMarchingFramebuffer;
+
+		std::unique_ptr<VertexShader> mPingPongVertexShader;
+		std::unique_ptr<FragmentShader> mPingPongFragmentShader;
+
+		std::unique_ptr<Framebuffer> mPingPongFramebuffer1;
+		std::unique_ptr<Framebuffer> mPingPongFramebuffer2;
+
+		std::unique_ptr<Model> mModel;
+		std::unique_ptr<ConstantBuffer<ModelViewProjectionConstantBuffer>> mConstantBuffer;
+
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSampler;
 
 		// System resources for cube geometry.
 		ModelViewProjectionConstantBuffer	m_constantBufferData;

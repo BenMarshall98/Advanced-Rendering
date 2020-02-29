@@ -17,6 +17,12 @@ struct PixelShaderInput
 	float2 canvasCoord : TEXCOORD0;
 };
 
+struct PixelShaderOutput
+{
+    float4 color : SV_Target;
+    float depth : SV_Depth;
+};
+
 struct Ray
 {
 	float3 o;
@@ -41,14 +47,14 @@ float sdSphere(float3 position, float radius);
 
 //Scene
 Object Scene(float3 position);
-float4 RayMarching(Ray eyeray);
+PixelShaderOutput RayMarching(Ray eyeray);
 float4 Lighting(Ray ray, Object Object, float depth);
 float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor, float4 specularColor);
 
 float3 Normal(float3 position);
 
 // A pass-through function for the (interpolated) color data.
-float4 main(PixelShaderInput input) : SV_TARGET
+PixelShaderOutput main(PixelShaderInput input) : SV_TARGET
 {
 	float zoom = 1.0f;
 	float2 xy = zoom * input.canvasCoord;
@@ -66,9 +72,13 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	return RayMarching(eyeray);
 }
 
-float4 RayMarching(Ray ray)
+PixelShaderOutput RayMarching(Ray ray)
 {
 	float depth = 0.0f;
+    
+    PixelShaderOutput output = (PixelShaderOutput) 0;
+    output.color = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    output.depth = 1.0f;
 
 	for (int i = 0; i < MAX_MARCHING_STEPS; i++)
 	{
@@ -76,18 +86,25 @@ float4 RayMarching(Ray ray)
 
 		if (obj.dist < EPSILON)
 		{
-			return Lighting(ray, obj, depth);
-		}
+            output.color = Lighting(ray, obj, depth);
+            
+            float4 pos = mul(float4(ray.o + depth * ray.d, 1.0f), view);
+            pos = mul(pos, projection);
+            
+            output.depth = pos.z / pos.w;
+            
+            return output;
+        }
 
 		depth += obj.dist;
 
 		if (depth >= farPlane)
 		{
-			return backgroundColor;
+			return output;
 		}
 	}
 	
-	return backgroundColor;
+	return output;
 }
 
 float4 Lighting(Ray ray, Object obj, float depth)

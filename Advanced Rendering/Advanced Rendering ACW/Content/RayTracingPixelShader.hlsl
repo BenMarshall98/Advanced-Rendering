@@ -20,6 +20,12 @@ struct PixelShaderInput
     float2 canvasCoord : TEXCOORD0;
 };
 
+struct PixelShaderOutput
+{
+    float4 color : SV_Target;
+    float depth : SV_Depth;
+};
+
 struct Ray
 {
     float3 o;
@@ -117,10 +123,10 @@ float4 SphereShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, flo
 float4 PlaneShade(float3 hitPos, float3 normal, float3 viewDir, int hitObj, float lightIntensity);
 float4 TriangleShade(float3 hitPos, float3 normal, float3 viewDir, int hitObj, float lightIntensity);
 float Shadow(float3 hitPos, float3 lightPos);
-float4 RayTracing(Ray eyeray);
+PixelShaderOutput RayTracing(Ray eyeray);
 
 // A pass-through function for the (interpolated) color data.
-float4 main(PixelShaderInput input) : SV_TARGET
+PixelShaderOutput main(PixelShaderInput input) : SV_TARGET
 {
     float zoom = 1.0f;
     float2 xy = zoom * input.canvasCoord;
@@ -249,7 +255,7 @@ float TriangleIntersect(Triangle tri, Ray ray, out bool hit)
     return t;
 }
 
-float4 RayTracing(Ray ray)
+PixelShaderOutput RayTracing(Ray ray)
 {
     int hitobj;
     bool hit = false;
@@ -258,9 +264,19 @@ float4 RayTracing(Ray ray)
     float lightIntensity = 1.0f;
     
     float3 i = NearestHit(ray, hitobj, hit);
+    
+    PixelShaderOutput output = (PixelShaderOutput) 0;
+    output.depth = 1.0f;
 
     for (int depth = 1; depth < 5; depth++)
     {
+        if (hit && depth == 1)
+        {
+            float4 pos = mul(float4(i, 1.0f), view);
+            pos = mul(pos, projection);
+            output.depth = pos.z / pos.w;
+        }
+        
         if (hit && hitobj < SOBJECTS)
         {
             n = SphereNormal(sphereObjects[hitobj], i);
@@ -293,13 +309,11 @@ float4 RayTracing(Ray ray)
             ray.d = reflect(ray.d, n);
             i = NearestHit(ray, hitobj, hit);
         }
-        else if (!hit && depth == 1)
-        {
-            c = backgroundColor;
-        }
     }
     
-    return c;
+    output.color = c;
+    
+    return output;
 }
 
 float3 SphereNormal(Sphere s, float3 pos)

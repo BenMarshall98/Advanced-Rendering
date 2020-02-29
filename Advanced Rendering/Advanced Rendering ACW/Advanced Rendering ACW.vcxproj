@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -258,6 +258,7 @@
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="DomainShader.h" />
     <ClInclude Include="FragmentShader.h" />
+    <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GeometryShader.h" />
     <ClInclude Include="HullShader.h" />
     <ClInclude Include="Main.h" />
@@ -279,6 +280,7 @@
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="DomainShader.cpp" />
     <ClCompile Include="FragmentShader.cpp" />
+    <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
     <ClCompile Include="HullShader.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -315,6 +317,14 @@
     </FxCompile>
     <FxCompile Include="Content\RayVertexShader.hlsl">
       <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="PingPongPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.1</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="PingPongVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.1</ShaderModel>
     </FxCompile>
     <FxCompile Include="RayMarchingPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

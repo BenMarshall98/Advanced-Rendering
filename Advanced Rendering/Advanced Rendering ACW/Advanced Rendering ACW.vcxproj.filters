@@ -97,7 +97,12 @@
     <ClCompile Include="ConstantBuffer.cpp">
       <Filter>Common\ConstantBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Camera.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Framebuffer.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -130,7 +135,12 @@
     <ClInclude Include="ConstantBuffer.h">
       <Filter>Common\ConstantBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Camera.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Framebuffer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -151,6 +161,12 @@
       <Filter>Content</Filter>
     </FxCompile>
     <FxCompile Include="Content\RayVertexShader.hlsl">
+      <Filter>Content</Filter>
+    </FxCompile>
+    <FxCompile Include="PingPongPixelShader.hlsl">
+      <Filter>Content</Filter>
+    </FxCompile>
+    <FxCompile Include="PingPongVertexShader.hlsl">
       <Filter>Content</Filter>
     </FxCompile>
   </ItemGroup>

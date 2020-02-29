@@ -11,7 +11,7 @@ void VertexShader::Load(std::shared_ptr<DX::DeviceResources> pDeviceResources)
 				&fileData[0],
 				fileData.size(),
 				nullptr,
-				&mVertexShader
+				mVertexShader.ReleaseAndGetAddressOf()
 			)
 		);
 
@@ -27,7 +27,7 @@ void VertexShader::Load(std::shared_ptr<DX::DeviceResources> pDeviceResources)
 				ARRAYSIZE(vertexDesc),
 				&fileData[0],
 				fileData.size(),
-				&mInputLayout
+				mInputLayout.ReleaseAndGetAddressOf()
 			)
 		);
 	});
