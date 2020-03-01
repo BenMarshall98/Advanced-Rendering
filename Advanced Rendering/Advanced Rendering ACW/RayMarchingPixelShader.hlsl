@@ -19,8 +19,8 @@ struct PixelShaderInput
 
 struct PixelShaderOutput
 {
-    float4 color : SV_Target;
-    float depth : SV_Depth;
+    float4 color : SV_Target0;
+    float4 position : SV_Target1;
 };
 
 struct Ray
@@ -78,7 +78,6 @@ PixelShaderOutput RayMarching(Ray ray)
     
     PixelShaderOutput output = (PixelShaderOutput) 0;
     output.color = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    output.depth = 1.0f;
 
 	for (int i = 0; i < MAX_MARCHING_STEPS; i++)
 	{
@@ -91,7 +90,7 @@ PixelShaderOutput RayMarching(Ray ray)
             float4 pos = mul(float4(ray.o + depth * ray.d, 1.0f), view);
             pos = mul(pos, projection);
             
-            output.depth = pos.z / pos.w;
+            output.position = pos;
             
             return output;
         }

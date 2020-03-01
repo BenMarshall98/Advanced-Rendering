@@ -22,8 +22,8 @@ struct PixelShaderInput
 
 struct PixelShaderOutput
 {
-    float4 color : SV_Target;
-    float depth : SV_Depth;
+    float4 color : SV_Target0;
+    float4 position : SV_Target1;
 };
 
 struct Ray
@@ -266,7 +266,6 @@ PixelShaderOutput RayTracing(Ray ray)
     float3 i = NearestHit(ray, hitobj, hit);
     
     PixelShaderOutput output = (PixelShaderOutput) 0;
-    output.depth = 1.0f;
 
     for (int depth = 1; depth < 5; depth++)
     {
@@ -274,7 +273,7 @@ PixelShaderOutput RayTracing(Ray ray)
         {
             float4 pos = mul(float4(i, 1.0f), view);
             pos = mul(pos, projection);
-            output.depth = pos.z / pos.w;
+            output.position = pos;
         }
         
         if (hit && hitobj < SOBJECTS)

@@ -14,7 +14,7 @@ bool Framebuffer::LoadFramebuffer(std::shared_ptr<DX::DeviceResources> pDeviceRe
 	renderTextureDesc.Height = height;
 	renderTextureDesc.MipLevels = 1;
 	renderTextureDesc.MiscFlags = 0;
-	renderTextureDesc.ArraySize = 1;
+	renderTextureDesc.ArraySize = 2;
 	renderTextureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	renderTextureDesc.SampleDesc.Count = 1;
 	renderTextureDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -31,8 +31,11 @@ bool Framebuffer::LoadFramebuffer(std::shared_ptr<DX::DeviceResources> pDeviceRe
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 	ZeroMemory(&renderTargetViewDesc, sizeof D3D11_RENDER_TARGET_VIEW_DESC);
 	renderTargetViewDesc.Format = renderTextureDesc.Format;
-	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	renderTargetViewDesc.Texture2D.MipSlice = 0;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+	renderTargetViewDesc.Texture2DArray.MipSlice = 0;
+	renderTargetViewDesc.Texture2DArray.ArraySize = 1;
+
+	renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
 
 	result = device->CreateRenderTargetView(mColorTexture.Get(), &renderTargetViewDesc, mColorTextureTargetView.ReleaseAndGetAddressOf());
 
@@ -41,15 +44,31 @@ bool Framebuffer::LoadFramebuffer(std::shared_ptr<DX::DeviceResources> pDeviceRe
 		return false;
 	}
 
+	renderTargetViewDesc.Texture2DArray.FirstArraySlice = 1;
+
+	result = device->CreateRenderTargetView(mColorTexture.Get(), &renderTargetViewDesc, mPositionTextureTargetView.ReleaseAndGetAddressOf());
+
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 	ZeroMemory(&shaderResourceViewDesc, sizeof D3D11_SHADER_RESOURCE_VIEW_DESC);
 	shaderResourceViewDesc.Format = renderTextureDesc.Format;
 
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+	shaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2DArray.MipLevels = 1;
+	shaderResourceViewDesc.Texture2DArray.ArraySize = 1;
+
+	shaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
 
 	result = device->CreateShaderResourceView(mColorTexture.Get(), &shaderResourceViewDesc, mColorTextureResourceView.ReleaseAndGetAddressOf());
+
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	shaderResourceViewDesc.Texture2DArray.FirstArraySlice = 1;
+
+	result = device->CreateShaderResourceView(mColorTexture.Get(), &shaderResourceViewDesc, mPositionTextureResourceView.ReleaseAndGetAddressOf());
 
 	if (FAILED(result))
 	{
@@ -79,9 +98,9 @@ bool Framebuffer::LoadFramebuffer(std::shared_ptr<DX::DeviceResources> pDeviceRe
 
 	D3D11_DEPTH_STENCIL_DESC depthStateDesc;
 	ZeroMemory(&depthStateDesc, sizeof D3D11_DEPTH_STENCIL_DESC);
-	depthStateDesc.DepthEnable = false;
-	depthStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-	depthStateDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
+	depthStateDesc.DepthEnable = true;
+	depthStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStateDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
 	depthStateDesc.StencilEnable = false;
 	depthStateDesc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
@@ -118,19 +137,6 @@ bool Framebuffer::LoadFramebuffer(std::shared_ptr<DX::DeviceResources> pDeviceRe
 		return false;
 	}
 
-	ZeroMemory(&shaderResourceViewDesc, sizeof D3D11_SHADER_RESOURCE_VIEW_DESC);
-	shaderResourceViewDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-	shaderResourceViewDesc.Texture2D.MipLevels = 1;
-
-	result = device->CreateShaderResourceView(mDepthTexture.Get(), &shaderResourceViewDesc, mDepthTextureResourceView.ReleaseAndGetAddressOf());
-
-	if (FAILED(result))
-	{
-		return false;
-	}
-
 	return true;
 }
 
@@ -141,11 +147,14 @@ void Framebuffer::UseFramebuffer(std::shared_ptr<DX::DeviceResources> pDeviceRes
 	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	deviceContext->ClearRenderTargetView(mColorTextureTargetView.Get(), clearColor);
+	deviceContext->ClearRenderTargetView(mPositionTextureTargetView.Get(), clearColor);
 	deviceContext->ClearDepthStencilView(mDepthTextureTargetView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0.0f);
 
 	deviceContext->OMSetDepthStencilState(mDepthState.Get(), 0);
 
-	deviceContext->OMSetRenderTargets(1, mColorTextureTargetView.GetAddressOf(), mDepthTextureTargetView.Get());
+	ID3D11RenderTargetView *const targets[2] = { mColorTextureTargetView.Get(), mPositionTextureTargetView.Get() };
+
+	deviceContext->OMSetRenderTargets(2, targets, mDepthTextureTargetView.Get());
 }
 
 void Framebuffer::ReleaseFramebuffer(std::shared_ptr<DX::DeviceResources> pDeviceResources) const
@@ -160,7 +169,7 @@ void Framebuffer::UseTexture(std::shared_ptr<DX::DeviceResources> pDeviceResourc
 	const auto deviceContext = pDeviceResources->GetD3DDeviceContext();
 
 	deviceContext->PSSetShaderResources(pSlot, 1, mColorTextureResourceView.GetAddressOf());
-	deviceContext->PSSetShaderResources(pSlot + 1, 1, mDepthTextureResourceView.GetAddressOf());
+	deviceContext->PSSetShaderResources(pSlot + 1, 1, mPositionTextureResourceView.GetAddressOf());
 }
 
 void Framebuffer::ReleaseTexture(std::shared_ptr<DX::DeviceResources> pDeviceResources, unsigned int pSlot)

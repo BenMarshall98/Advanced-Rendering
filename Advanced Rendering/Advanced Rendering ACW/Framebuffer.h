@@ -7,12 +7,13 @@ class Framebuffer
 {
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mColorTexture = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mColorTextureTargetView = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mPositionTextureTargetView = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mColorTextureResourceView = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mPositionTextureResourceView = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mDepthTexture = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthState = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDepthTextureTargetView = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mDepthTextureResourceView = nullptr;
 
 public:
 	Framebuffer() = default;

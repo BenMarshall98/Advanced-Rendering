@@ -14,8 +14,8 @@ struct VS_OUTPUT
 
 struct PS_OUTPUT
 {
-    float4 Color : SV_Target;
-    float Depth : SV_Depth;
+    float4 Color : SV_Target0;
+    float4 Position : SV_Target1;
 };
 
 PS_OUTPUT main(VS_OUTPUT input)
@@ -25,8 +25,8 @@ PS_OUTPUT main(VS_OUTPUT input)
     float4 color1 = colorTexture1.Sample(Sampler, input.TexCoord);
     float4 color2 = colorTexture2.Sample(Sampler, input.TexCoord);
     
-    float depth1 = depthTexture1.Sample(Sampler, input.TexCoord).r;
-    float depth2 = depthTexture1.Sample(Sampler, input.TexCoord).r;
+    float4 position1 = depthTexture1.Sample(Sampler, input.TexCoord);
+    float4 position2 = depthTexture2.Sample(Sampler, input.TexCoord);
     
     if (color1.a == 0.0f && color2.a == 0.0f)
     {
@@ -35,24 +35,27 @@ PS_OUTPUT main(VS_OUTPUT input)
     else if (color1.a != 0.0f && color2.a == 0.0f)
     {
         output.Color = color1;
-        output.Depth = depth1;
+        output.Position = position1;
     }
     else if (color1.a == 0.0f && color2.a != 0.0f)
     {
         output.Color = color2;
-        output.Depth = depth2;
+        output.Position  = position2;
     }
     else
     {
+        float depth1 = position1.z / position1.w;
+        float depth2 = position2.z / position2.w;
+        
         if (depth1 > depth2)
         {
-            output.Color = color1;
-            output.Depth = depth1;
+            output.Color = color2;
+            output.Position = position1;
         }
         else
         {
-            output.Color = color2;
-            output.Depth = depth2;
+            output.Color = color1;
+            output.Position = position2;
         }
     }
     
