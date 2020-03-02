@@ -50,12 +50,12 @@ PS_OUTPUT main(VS_OUTPUT input)
         if (depth1 > depth2)
         {
             output.Color = color2;
-            output.Position = position1;
+            output.Position = position2;
         }
         else
         {
             output.Color = color1;
-            output.Position = position2;
+            output.Position = position1;
         }
     }
     

@@ -191,11 +191,16 @@ Object Scene(float3 position)
     
     for (int i = 0; i < numberOfColumns; i++)
     {
-        float tempDist = sdBox((position - columnPositions[i]) + float3(0.0f, -5.0f, 0.0f), float3(1.0f, 5.5f, 1.0f));
+        float tempDist = sdBox((position - columnPositions[i]) + float3(0.0f, -5.0f, 0.0f), float3(1.5f, 5.5f, 1.5f));
         
         if (tempDist < obj.dist)
         {
-            obj.dist = sdCappedCylinder(position, columnPositions[i], columnPositions[i] + float3(0.0f, 10.0f, 0.0f), 0.5f);
+            tempDist = sdCappedCylinder(position, columnPositions[i], columnPositions[i] + float3(0.0f, 10.0f, 0.0f), 0.5f);
+        }
+        
+        if (tempDist < obj.dist)
+        {
+            obj.dist = tempDist;
             obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
         }
     }

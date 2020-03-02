@@ -147,6 +147,8 @@ void Sample3DSceneRenderer::Render()
 		mRayTracingFramebuffer->ReleaseFramebuffer(m_deviceResources);
 	}
 
+	
+
 	const auto context = m_deviceResources->GetD3DDeviceContext();
 
 	ID3D11RenderTargetView *const targets[1] = { m_deviceResources->GetBackBufferRenderTargetView() };
