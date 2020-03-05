@@ -171,7 +171,7 @@ float3 Normal(float3 position)
 Object Scene(float3 position)
 {
 	Object obj = (Object) 0;
-	obj.dist = sdSphere(position - float3(0.0f, 0.0f, 0.0f), 1.0f);
+	obj.dist = sdSphere(position - float3(5.0f, 0.0f, 0.0f), 1.0f);
 	obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
     
     const int numberOfColumns = 10;

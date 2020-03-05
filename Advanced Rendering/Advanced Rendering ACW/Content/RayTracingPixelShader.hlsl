@@ -1,6 +1,6 @@
 #define SOBJECTS 3
 #define TOBJECTS 4
-#define COBJECTS 6
+#define QOBJECTS 6
 #define POBJECTS 1
 #define EPSILON 0.005f
 
@@ -53,6 +53,17 @@ struct Triangle
     float3 pointA;
     float3 pointB;
     float3 pointC;
+    float4 color;
+    float Kd, ks, kr, shininess;
+};
+
+struct Quad
+{
+    float3 centre;
+    float3 normal;
+    float3 tangent;
+    float3 biTangent;
+    float2 size;
     float4 color;
     float Kd, ks, kr, shininess;
 };
@@ -112,8 +123,61 @@ static Triangle triangleObjects[TOBJECTS] =
     }
 };
 
+static Quad quadObjects[QOBJECTS] =
+{
+    {
+        0.0f, 3.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.3f, 0.1f, shininess
+    },
+    {
+        0.0f, 1.0f, 0.0f,
+        0.0f, -1.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.3f, 0.1f, shininess
+    },
+    {
+        0.0f, 2.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.3f, 0.1f, shininess
+    },
+    {
+        0.0f, 2.0f, -1.0f,
+        0.0f, 0.0f, -1.0f,
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.3f, 0.1f, shininess
+    },
+    {
+        1.0f, 2.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.3f, 0.1f, shininess
+    },
+    {
+        -1.0f, 2.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.3f, 0.1f, shininess
+    }
+};
+
 float SphereIntersect(Sphere s, Ray ray, out bool hit);
 float PlaneIntersect(Plane p, Ray ray, out bool hit);
+float QuadIntersect(Quad q, Ray ray, out bool hit);
 float TriangleIntersect(Triangle t, Ray ray, out bool hit);
 float3 SphereNormal(Sphere s, float3 pos);
 float3 TriangleNormal(Triangle t);
@@ -121,6 +185,7 @@ float3 NearestHit(Ray ray, out int hitobj, out bool anyhit);
 float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor, float4 specularColor);
 float4 SphereShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lightIntensity);
 float4 PlaneShade(float3 hitPos, float3 normal, float3 viewDir, int hitObj, float lightIntensity);
+float4 QuadShade(float3 hitPos, float3 normal, float3 viewDir, int hitObj, float lightIntensity);
 float4 TriangleShade(float3 hitPos, float3 normal, float3 viewDir, int hitObj, float lightIntensity);
 float Shadow(float3 hitPos, float3 lightPos);
 PixelShaderOutput RayTracing(Ray eyeray);
@@ -195,6 +260,45 @@ float PlaneIntersect(Plane p, Ray ray, out bool hit)
         else
         {
             hit = true;
+        }
+    }
+    
+    return t;
+}
+
+float QuadIntersect(Quad q, Ray ray, out bool hit)
+{
+    float c = dot(ray.d, q.normal);
+    
+    float t = farPlane;
+    
+    if (abs(c) < EPSILON)
+    {
+        hit = false;
+    }
+    else
+    {
+        t = dot(q.centre - ray.o, q.normal) / c;
+        
+        if (t < EPSILON)
+        {
+            hit = false;
+        }
+        else
+        {
+            float3 pos = ray.o + t * ray.d;
+            
+            float tanSize = dot(pos - q.centre, q.tangent);
+            float biSize = dot(pos - q.centre, q.biTangent);
+            
+            if (abs(tanSize) <= q.size.x && abs(biSize) <= q.size.y)
+            {
+                hit = true;
+            }
+            else
+            {
+                hit = false;
+            }
         }
     }
     
@@ -308,6 +412,17 @@ PixelShaderOutput RayTracing(Ray ray)
             ray.d = reflect(ray.d, n);
             i = NearestHit(ray, hitobj, hit);
         }
+        else if (hit && hitobj < SOBJECTS + POBJECTS + TOBJECTS + QOBJECTS)
+        {
+            int object = hitobj - SOBJECTS - POBJECTS - TOBJECTS;
+            n = quadObjects[object].normal;
+            c += QuadShade(i, n, ray.d, object, lightIntensity);
+            
+            lightIntensity *= quadObjects[object].kr;
+            ray.o = i;
+            ray.d = reflect(ray.d, n);
+            i = NearestHit(ray, hitobj, hit);
+        }
     }
     
     output.color = c;
@@ -382,6 +497,23 @@ float3 NearestHit(Ray ray, out int hitobj, out bool anyhit)
         }
     }
     
+    newHit = SOBJECTS + POBJECTS + TOBJECTS;
+    
+    for (i = 0; i < QOBJECTS; i++)
+    {
+        bool hit = false;
+        float t = QuadIntersect(quadObjects[i], ray, hit);
+        if (hit)
+        {
+            if (t < mint)
+            {
+                hitobj = newHit + i;
+                mint = t;
+                anyhit = true;
+            }
+        }
+    }
+    
     return ray.o + ray.d * mint;
 }
 
@@ -427,6 +559,39 @@ float4 PlaneShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, floa
     return lightColor * lightIntensity * ((shadow * Phong(normal, lightDir, viewDir, planeObjects[hitobj].shininess, diff, spec)) + amb);
 }
 
+float4 QuadShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lightIntensity)
+{
+    float3 lightDir = normalize(lightPos - hitPos);
+    
+    float4 color = quadObjects[hitobj].color;
+            
+    float tanSize = dot(hitPos - quadObjects[hitobj].centre, quadObjects[hitobj].tangent);
+    float biSize = dot(hitPos - quadObjects[hitobj].centre, quadObjects[hitobj].biTangent);
+    
+    float tempTanSize = tanSize * 5.0f;
+    float tempBiSize = biSize * 5.0f;
+    
+    if (frac((floor(tempTanSize) + floor(tempBiSize)) * 0.5f) * 2)
+    {
+        color.xyz *= 0.1f;
+    }
+    
+    if (abs(tanSize) / quadObjects[hitobj].size.x > 0.8f
+        || abs(biSize) / quadObjects[hitobj].size.y > 0.8f)
+    {
+        color = float4(0.59f, 0.29f, 0.0f, 1.0f);
+    }
+    
+    float4 diff = color * quadObjects[hitobj].Kd;
+    float4 spec = color * quadObjects[hitobj].ks;
+    float4 amb = color * 0.1f;
+    
+    float shadow = 1.0f - Shadow(hitPos, lightPos);
+    
+    return lightColor * lightIntensity * ((shadow * Phong(normal, lightDir, viewDir, quadObjects[hitobj].shininess, diff, spec)) + amb);
+}
+
+
 float4 TriangleShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lightIntensity)
 {
     float3 lightDir = normalize(lightPos - hitPos);
@@ -465,6 +630,17 @@ float Shadow(float3 hitPos, float3 lightPos)
     {
         bool hit;
         float t = TriangleIntersect(triangleObjects[i], ray, hit);
+        
+        if (hit && t < length(hitPos - lightPos))
+        {
+            anyHit = 1.0f;
+        }
+    }
+    
+    for (i = 0; i < QOBJECTS; i++)
+    {
+        bool hit;
+        float t = QuadIntersect(quadObjects[i], ray, hit);
         
         if (hit && t < length(hitPos - lightPos))
         {
