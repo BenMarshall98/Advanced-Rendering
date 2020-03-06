@@ -33,6 +33,7 @@ struct Object
 {
 	float dist;
 	float4 color;
+    int objectType;
 };
 
 static float nearPlane = 1.0f;
@@ -85,6 +86,7 @@ float noise(in float2 st);
 
 //Custom Shapes
 float sdTerrain(float3 position);
+float3 sdTerrainColor(float3 position);
 
 // A pass-through function for the (interpolated) color data.
 PixelShaderOutput main(PixelShaderInput input) : SV_TARGET
@@ -146,9 +148,16 @@ float4 Lighting(Ray ray, Object obj, float depth)
 	
 	float3 lightDir = normalize(lightPos - hitPos);
     
-	float4 diff = obj.color;
-	float4 spec = obj.color;
-	float4 amb = obj.color * 0.1f;
+    float4 color = obj.color;
+    
+    if (obj.objectType == 1)
+    {
+        color = float4(sdTerrainColor(hitPos), 1.0f);
+    }
+    
+	float4 diff = color;
+	float4 spec = color;
+	float4 amb = color * 0.1f;
 	
 	return lightColor * (Phong(normal, lightDir, ray.d, 40, diff, spec) + amb);
 }
@@ -179,6 +188,7 @@ Object Scene(float3 position)
 	Object obj = (Object) 0;
 	obj.dist = sdSphere(position - float3(5.0f, 0.0f, 0.0f), 1.0f);
 	obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+    obj.objectType = 0;
     
     const int numberOfColumns = 10;
     const float3 columnPositions[numberOfColumns] =
@@ -218,6 +228,7 @@ Object Scene(float3 position)
         {
             obj.dist = tempDist;
             obj.color = float4(0.1f, 1.0f, 0.1f, 1.0f);
+            obj.objectType = 1;
         }
     }
 
@@ -389,6 +400,158 @@ float sdTerrain(float3 position)
     }
     
     return position.y - noise(position.xz * 0.1f) * 2.0f;
+}
+
+float3 sdTerrainColor(float3 position)
+{
+    if (abs(position.x) < 10.0f && position.z > 0.0f && position.z < 100.0f)
+    {
+        float inter = noise(position.xz * 20.0f) * 0.1f;
+        
+        float3 height1 = float3(0.7f, 0.7f, 0.7f);
+        float3 height2 = float3(0.0f, 1.0f, 0.0f);
+        
+        return lerp(height1, height2, inter);
+    }
+    
+    if (abs(position.x) < 15.0f && position.z > -5.0f && position.z < 105.0f)
+    {
+        float inter = 0.0f;
+        
+        if (abs(position.x) < 15.0f && position.z > 0.0f && position.z < 100.0f)
+        {
+            inter = smoothstep(10.0f, 15.0f, abs(position.x));
+        }
+            
+        if (position.z < 0.0f)
+        {
+            inter = (1.0f - smoothstep(-5.0f, 0.0f, position.z));
+        }
+        
+        if (position.z > 100.0f)
+        {
+            inter = smoothstep(100.0f, 105.0f, position.z);
+        }
+        
+        if (abs(position.x) < 15.0f && position.z > -5.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(smoothstep(10.0f, 15.0f, abs(position.x)), (1.0f - smoothstep(-5.0f, 0.0f, position.z)));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        if (abs(position.x) < 15.0f && position.z > 100.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(smoothstep(10.0f, 15.0f, abs(position.x)), smoothstep(100.0f, 105.0f, position.z));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        float3 height1 = float3(0.7f, 0.7f, 0.7f);
+        float3 height2 = float3(0.0f, 1.0f, 0.0f);
+        
+        return lerp(height1, height2, inter);
+    }
+    
+    if (abs(position.x) > 50.0f && abs(position.x) < 150.0f && position.z > 0.0f && position.z < 100.0f)
+    {
+        float inter = noise(position.xz * 20.0f) * 0.1f;
+        
+        float3 height1 = float3(0.7f, 0.7f, 0.7f);
+        float3 height2 = float3(0.0f, 1.0f, 0.0f);
+        
+        return lerp(height1, height2, inter);
+    }
+    
+    if (abs(position.x) > 45.0f && abs(position.x) < 155.0f && position.z > -5.0f && position.z < 105.0f)
+    {
+        float inter = 0.0f;
+        
+        if (abs(position.x) < 50.0f && position.z > 0.0f && position.z < 100.0f)
+        {
+            inter = 1.0f - smoothstep(45.0f, 50.0f, abs(position.x));
+        }
+        
+        if (abs(position.x) > 150.0f && position.z > 0.0f && position.z < 100.0f)
+        {
+            inter = smoothstep(150.0f, 155.0f, abs(position.x));
+        }
+            
+        if (position.z < 0.0f)
+        {
+            inter = (1.0f - smoothstep(-5.0f, 0.0f, position.z));
+        }
+        
+        if (position.z > 100.0f)
+        {
+            inter = smoothstep(100.0f, 105.0f, position.z);
+        }
+        
+        if (abs(position.x) < 155.0f && abs(position.x) > 150.0f && position.z > -5.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(smoothstep(150.0f, 155.0f, abs(position.x)), (1.0f - smoothstep(-5.0f, 0.0f, position.z)));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        if (abs(position.x) < 155.0f && abs(position.x) > 150.0f && position.z > 100.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(smoothstep(150.0f, 155.0f, abs(position.x)), smoothstep(100.0f, 105.0f, position.z));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        if (abs(position.x) < 50.0f && abs(position.x) > 45.0f && position.z > -5.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(1.0f - smoothstep(45.0f, 50.0f, abs(position.x)), (1.0f - smoothstep(-5.0f, 0.0f, position.z)));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        if (abs(position.x) < 50.0f && abs(position.x) > 45.0f && position.z > 100.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(1.0f - smoothstep(45.0f, 50.0f, abs(position.x)), smoothstep(100.0f, 105.0f, position.z));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        float3 height1 = float3(0.7f, 0.7f, 0.7f);
+        float3 height2 = float3(0.0f, 1.0f, 0.0f);
+        
+        return lerp(height1, height2, inter);
+    }
+    
+    return float3(0.0f, 1.0f, 0.0f);
 }
 
 //Distance Functions From https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
