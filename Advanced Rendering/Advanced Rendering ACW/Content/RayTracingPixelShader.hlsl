@@ -190,6 +190,11 @@ float4 TriangleShade(float3 hitPos, float3 normal, float3 viewDir, int hitObj, f
 float Shadow(float3 hitPos, float3 lightPos);
 PixelShaderOutput RayTracing(Ray eyeray);
 
+//Perlin Noise
+float random(float2 st);
+float noise(in float2 st);
+float terrain(in float2 st);
+
 // A pass-through function for the (interpolated) color data.
 PixelShaderOutput main(PixelShaderInput input) : SV_TARGET
 {
@@ -550,6 +555,10 @@ float4 PlaneShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, floa
         color = float4(0.5f, 0.5f, 0.5f, 1.0f);
     }
     
+    //float i = floor(hitPos.xz);
+    
+    color.xyz = terrain(hitPos.xz);
+    
     float4 diff = color * planeObjects[hitobj].Kd;
     float4 spec = color * planeObjects[hitobj].ks;
     float4 amb = color * 0.1f;
@@ -649,4 +658,34 @@ float Shadow(float3 hitPos, float3 lightPos)
     }
     
     return anyHit;
+}
+
+//Perlin Noise adapted from https://thebookofshaders.com/11/
+
+float random(float2 st)
+{
+    return frac(sin(dot(st.xy, float2(12.9898, 78.233))) * 43758.543123);
+}
+
+float noise (in float2 st)
+{
+    float2 i = floor(st);
+    float2 f = frac(st);
+
+    float a = random(i);
+    float b = random(i + float2(1.0f, 0.0f));
+    float c = random(i + float2(0.0f, 1.0f));
+    float d = random(i + float2(1.0f, 1.0f));
+
+    //float2 u = f * f * (3.0 - 2.0 * f);
+    float2 u = f * f * f * (f * (f * 6.0f - 15.0f) + 10.0f);
+    
+    return lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+}
+
+float terrain(in float2 st)
+{
+    return noise(st * 0.1f);
 }

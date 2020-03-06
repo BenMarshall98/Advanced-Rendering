@@ -77,8 +77,14 @@ Object Scene(float3 position);
 PixelShaderOutput RayMarching(Ray eyeray);
 float4 Lighting(Ray ray, Object Object, float depth);
 float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor, float4 specularColor);
-
 float3 Normal(float3 position);
+
+//Perlin Noise
+float random(float2 st);
+float noise(in float2 st);
+
+//Custom Shapes
+float sdTerrain(float3 position);
 
 // A pass-through function for the (interpolated) color data.
 PixelShaderOutput main(PixelShaderInput input) : SV_TARGET
@@ -177,16 +183,16 @@ Object Scene(float3 position)
     const int numberOfColumns = 10;
     const float3 columnPositions[numberOfColumns] =
     {
-        float3(-5.0f, 0.0f, 0.0f),
-        float3(5.0f, 0.0f, 10.0f),
-        float3(-5.0f, 0.0f, 20.0f),
-        float3(5.0f, 0.0f, 30.0f),
-        float3(-5.0f, 0.0f, 40.0f),
-        float3(5.0f, 0.0f, 50.0f),
-        float3(-5.0f, 0.0f, 60.0f),
-        float3(5.0f, 0.0f, 70.0f),
-        float3(-5.0f, 0.0f, 80.0f),
-        float3(5.0f, 0.0f, 90.0f)
+        float3(-5.0f, 0.0f, 5.0f),
+        float3(5.0f, 0.0f, 15.0f),
+        float3(-5.0f, 0.0f, 25.0f),
+        float3(5.0f, 0.0f, 35.0f),
+        float3(-5.0f, 0.0f, 45.0f),
+        float3(5.0f, 0.0f, 55.0f),
+        float3(-5.0f, 0.0f, 65.0f),
+        float3(5.0f, 0.0f, 75.0f),
+        float3(-5.0f, 0.0f, 85.0f),
+        float3(5.0f, 0.0f, 95.0f)
     };
     
     for (int i = 0; i < numberOfColumns; i++)
@@ -204,8 +210,185 @@ Object Scene(float3 position)
             obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
         }
     }
+    
+    {
+        float tempDist = sdTerrain(position);
+        
+        if (tempDist < obj.dist)
+        {
+            obj.dist = tempDist;
+            obj.color = float4(0.1f, 1.0f, 0.1f, 1.0f);
+        }
+    }
 
 	return obj;
+}
+
+//Perlin Noise adapted from https://thebookofshaders.com/11/
+
+float random(float2 st)
+{
+    return frac(sin(dot(st.xy, float2(12.9898, 78.233))) * 43758.543123);
+}
+
+float noise(in float2 st)
+{
+    float2 i = floor(st);
+    float2 f = frac(st);
+
+    float a = random(i);
+    float b = random(i + float2(1.0f, 0.0f));
+    float c = random(i + float2(0.0f, 1.0f));
+    float d = random(i + float2(1.0f, 1.0f));
+
+    //float2 u = f * f * (3.0 - 2.0 * f);
+    float2 u = f * f * f * (f * (f * 6.0f - 15.0f) + 10.0f);
+    
+    return lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+}
+
+float sdTerrain(float3 position)
+{
+    if (abs(position.x) < 10.0f && position.z > 0.0f && position.z < 100.0f)
+    {
+        return position.y - (noise(position.xz * 10.0f) * 0.01f);
+    }
+    
+    if (abs(position.x) < 15.0f && position.z > -5.0f && position.z < 105.0f)
+    {
+        float inter = 0.0f;
+        
+        if (abs(position.x) < 15.0f && position.z > 0.0f && position.z < 100.0f)
+        {
+            inter = smoothstep(10.0f, 15.0f, abs(position.x));
+        }
+            
+        if (position.z < 0.0f)
+        {
+            inter = (1.0f - smoothstep(-5.0f, 0.0f, position.z));
+        }
+        
+        if (position.z > 100.0f)
+        {
+            inter = smoothstep(100.0f, 105.0f, position.z);
+        }
+        
+        if (abs(position.x) < 15.0f && position.z > -5.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(smoothstep(10.0f, 15.0f, abs(position.x)), (1.0f - smoothstep(-5.0f, 0.0f, position.z)));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        if (abs(position.x) < 15.0f && position.z > 100.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(smoothstep(10.0f, 15.0f, abs(position.x)), smoothstep(100.0f, 105.0f, position.z));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        float height1 = position.y - (noise(position.xz * 10.0f) * 0.01f);
+        float height2 = position.y - noise(position.xz * 0.1f) * 2.0f;
+        
+        return lerp(height1, height2, inter);
+    }
+    
+    if (abs(position.x) > 50.0f && abs(position.x) < 150.0f && position.z > 0.0f && position.z < 100.0f)
+    {
+        return position.y - (noise(position.xz * 10.0f) * 0.01f);
+    }
+    
+    if (abs(position.x) > 45.0f && abs(position.x) < 155.0f && position.z > -5.0f && position.z < 105.0f)
+    {
+        float inter = 0.0f;
+        
+        if (abs(position.x) < 50.0f && position.z > 0.0f && position.z < 100.0f)
+        {
+            inter = 1.0f - smoothstep(45.0f, 50.0f, abs(position.x));
+        }
+        
+        if (abs(position.x) > 150.0f && position.z > 0.0f && position.z < 100.0f)
+        {
+            inter = smoothstep(150.0f, 155.0f, abs(position.x));
+        }
+            
+        if (position.z < 0.0f)
+        {
+            inter = (1.0f - smoothstep(-5.0f, 0.0f, position.z));
+        }
+        
+        if (position.z > 100.0f)
+        {
+            inter = smoothstep(100.0f, 105.0f, position.z);
+        }
+        
+        if (abs(position.x) < 155.0f && abs(position.x) > 150.0f && position.z > -5.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(smoothstep(150.0f, 155.0f, abs(position.x)), (1.0f - smoothstep(-5.0f, 0.0f, position.z)));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        if (abs(position.x) < 155.0f && abs(position.x) > 150.0f && position.z > 100.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(smoothstep(150.0f, 155.0f, abs(position.x)), smoothstep(100.0f, 105.0f, position.z));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        if (abs(position.x) < 50.0f && abs(position.x) > 45.0f && position.z > -5.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(1.0f - smoothstep(45.0f, 50.0f, abs(position.x)), (1.0f - smoothstep(-5.0f, 0.0f, position.z)));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        if (abs(position.x) < 50.0f && abs(position.x) > 45.0f && position.z > 100.0f)
+        {
+            float a = 0;
+            float b = 1, c = 1, d = 1;
+            
+            float2 u = float2(1.0f - smoothstep(45.0f, 50.0f, abs(position.x)), smoothstep(100.0f, 105.0f, position.z));
+            
+            inter = lerp(a, b, u.x) +
+            (c - a) * u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+        }
+        
+        float height1 = position.y - (noise(position.xz * 10.0f) * 0.01f);
+        float height2 = position.y - noise(position.xz * 0.1f) * 2.0f;
+        
+        return lerp(height1, height2, inter);
+    }
+    
+    return position.y - noise(position.xz * 0.1f) * 2.0f;
 }
 
 //Distance Functions From https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
