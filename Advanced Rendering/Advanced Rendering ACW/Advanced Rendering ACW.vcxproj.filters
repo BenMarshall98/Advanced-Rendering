@@ -65,6 +65,12 @@
     <Filter Include="Common\ConstantBuffer">
       <UniqueIdentifier>{640ca448-40fa-46f0-b138-b7a8a17292a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Content\Shaders">
+      <UniqueIdentifier>{d82bc20b-c27f-44e2-9cea-46a9004da6e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\Shaders\ParametricShapes">
+      <UniqueIdentifier>{2fa5f614-718c-41ae-ada9-9d8e59a0f9a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
@@ -168,6 +174,27 @@
     </FxCompile>
     <FxCompile Include="PingPongVertexShader.hlsl">
       <Filter>Content</Filter>
+    </FxCompile>
+    <FxCompile Include="ParametricElipsoidDomainShader.hlsl">
+      <Filter>Content\Shaders\ParametricShapes</Filter>
+    </FxCompile>
+    <FxCompile Include="ParametricFragmentShader.hlsl">
+      <Filter>Content\Shaders\ParametricShapes</Filter>
+    </FxCompile>
+    <FxCompile Include="ParametricHullShader.hlsl">
+      <Filter>Content\Shaders\ParametricShapes</Filter>
+    </FxCompile>
+    <FxCompile Include="ParametricKleinBottleDomainShader.hlsl">
+      <Filter>Content\Shaders\ParametricShapes</Filter>
+    </FxCompile>
+    <FxCompile Include="ParametricSphereDomainShader.hlsl">
+      <Filter>Content\Shaders\ParametricShapes</Filter>
+    </FxCompile>
+    <FxCompile Include="ParametricTorusDomainShader.hlsl">
+      <Filter>Content\Shaders\ParametricShapes</Filter>
+    </FxCompile>
+    <FxCompile Include="ParametricVertexShader.hlsl">
+      <Filter>Content\Shaders\ParametricShapes</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
