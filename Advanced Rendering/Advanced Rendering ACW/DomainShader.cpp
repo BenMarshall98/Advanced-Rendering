@@ -21,3 +21,14 @@ void DomainShader::Reset()
 {
 	mDomainShader.Reset();
 }
+
+void DomainShader::UseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources)
+{
+	auto context = pDeviceResources->GetD3DDeviceContext();
+
+	context->DSSetShader(
+		mDomainShader.Get(),
+		nullptr,
+		0
+	);
+}

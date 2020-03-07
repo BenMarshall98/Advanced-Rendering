@@ -57,8 +57,8 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources()
 		);
 
 	// Eye is at (0,0.7,1.5), looking at point (0,-0.1,0) with the up-vector along the y-axis.
-	static const XMFLOAT3 eye = { 0.0f, 2.0f, -5.0f };
-	static const XMFLOAT3 at = { 0.0f, 2.0f, 0.0f };
+	static const XMFLOAT3 eye = { 0.0f, 0.0f, -5.0f };
+	static const XMFLOAT3 at = { 0.0f, 0.0f, 0.0f };
 	static const XMFLOAT3 up = { 0.0f, 1.0f, 0.0f };
 
 	mCamera = std::make_unique<Camera>(eye, up, at);
@@ -120,7 +120,7 @@ void Sample3DSceneRenderer::Render()
 
 	// Prepare the constant buffer to send it to the graphics device.
 	mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
-	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+	mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
 	mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
 	////Ray Tracing
@@ -169,22 +169,25 @@ void Sample3DSceneRenderer::Render()
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	context->IASetInputLayout(nullptr);
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
-
 	mParametricVertexShader->UseProgram(m_deviceResources);
 	mParametricHullShader->UseProgram(m_deviceResources);
 	mParametricSphereDomainShader->UseProgram(m_deviceResources);
 	mParametricFragmentShader->UseProgram(m_deviceResources);
 
+	context->IASetInputLayout(nullptr);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+
 	context->RSSetState(m_wireframeRasterizerState.Get());
+
+	context->Draw(4, 0);
 }
 
 void Sample3DSceneRenderer::CreateDeviceDependentResources()
 {
 	D3D11_RASTERIZER_DESC rasterizerDesc = CD3D11_RASTERIZER_DESC(D3D11_DEFAULT);
 
-	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
+	//rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
+	rasterizerDesc.CullMode = D3D11_CULL_NONE;
 
 	m_deviceResources->GetD3DDevice()->CreateRasterizerState(&rasterizerDesc, m_wireframeRasterizerState.GetAddressOf());
 
@@ -200,7 +203,6 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mParametricSphereDomainShader = std::make_unique<DomainShader>(L"ParametricSphereDomainShader.cso");
 	mParametricElipsoidDomainShader = std::make_unique<DomainShader>(L"ParametricElipsoidDomainShader.cso");
 	mParametricTorusDomainShader = std::make_unique<DomainShader>(L"ParametricTorusDomainShader.cso");
-	mParametricKleinDomainShader = std::make_unique<DomainShader>(L"ParametricKleinBottleDomainShader.cso");
 	mParametricFragmentShader = std::make_unique<FragmentShader>(L"ParametricFragmentShader.cso");
 
 	mRayVertexShader->Load(m_deviceResources);
@@ -214,7 +216,6 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mParametricSphereDomainShader->Load(m_deviceResources);
 	mParametricElipsoidDomainShader->Load(m_deviceResources);
 	mParametricTorusDomainShader->Load(m_deviceResources);
-	mParametricKleinDomainShader->Load(m_deviceResources);
 	mParametricFragmentShader->Load(m_deviceResources);
 
 	mRayTracingFramebuffer = std::make_unique<Framebuffer>();

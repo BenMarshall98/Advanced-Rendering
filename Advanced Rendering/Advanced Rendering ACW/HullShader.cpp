@@ -21,3 +21,14 @@ void HullShader::Reset()
 {
 	mHullShader.Reset();
 }
+
+void HullShader::UseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources)
+{
+	auto context = pDeviceResources->GetD3DDeviceContext();
+
+	context->HSSetShader(
+		mHullShader.Get(),
+		nullptr,
+		0
+	);
+}

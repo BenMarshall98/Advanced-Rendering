@@ -29,7 +29,7 @@ HS_Factors ConstantHS(InputPatch<VertexShaderOutput, 4> ip)
 [partitioning("fractional_even")]
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(4)]
-[patchconstatnfunc("ConstantHS")]
+[patchconstantfunc("ConstantHS")]
 
 VertexShaderOutput main(InputPatch<VertexShaderOutput, 4> patch, uint i : SV_OutputControlPointID)
 {

@@ -61,7 +61,6 @@ namespace Advanced_Rendering
 		std::unique_ptr<DomainShader> mParametricSphereDomainShader;
 		std::unique_ptr<DomainShader> mParametricElipsoidDomainShader;
 		std::unique_ptr<DomainShader> mParametricTorusDomainShader;
-		std::unique_ptr<DomainShader> mParametricKleinDomainShader;
 		std::unique_ptr<FragmentShader> mParametricFragmentShader;
 
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSampler;

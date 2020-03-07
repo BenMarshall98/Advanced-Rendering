@@ -184,9 +184,6 @@
     <FxCompile Include="ParametricHullShader.hlsl">
       <Filter>Content\Shaders\ParametricShapes</Filter>
     </FxCompile>
-    <FxCompile Include="ParametricKleinBottleDomainShader.hlsl">
-      <Filter>Content\Shaders\ParametricShapes</Filter>
-    </FxCompile>
     <FxCompile Include="ParametricSphereDomainShader.hlsl">
       <Filter>Content\Shaders\ParametricShapes</Filter>
     </FxCompile>
