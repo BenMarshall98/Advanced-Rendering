@@ -12,6 +12,8 @@
 #include "ConstantBuffer.h"
 #include "Camera.h"
 #include "Framebuffer.h"
+#include "GeometryShader.h"
+#include "PointModel.h"
 
 namespace Advanced_Rendering
 {
@@ -55,6 +57,7 @@ namespace Advanced_Rendering
 		std::unique_ptr<Framebuffer> mPingPongFramebuffer2;
 
 		std::unique_ptr<Model> mModel;
+		std::unique_ptr<PointModel> mPointModel;
 		std::unique_ptr<ConstantBuffer<ModelViewProjectionConstantBuffer>> mConstantBuffer;
 		std::unique_ptr<ConstantBuffer<RayConstantBuffer>> mRayConstantBuffer;
 
@@ -64,6 +67,10 @@ namespace Advanced_Rendering
 		std::unique_ptr<DomainShader> mParametricElipsoidDomainShader;
 		std::unique_ptr<DomainShader> mParametricTorusDomainShader;
 		std::unique_ptr<FragmentShader> mParametricFragmentShader;
+
+		std::unique_ptr<VertexShader> mBillboardVertexShader;
+		std::unique_ptr<GeometryShader> mBillboardGeometryShader;
+		std::unique_ptr<FragmentShader> mBillboardFragmentShader;
 
 		std::unique_ptr<Framebuffer> mGeometryFramebuffer;
 

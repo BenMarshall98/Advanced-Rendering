@@ -71,6 +71,9 @@
     <Filter Include="Content\Shaders\ParametricShapes">
       <UniqueIdentifier>{2fa5f614-718c-41ae-ada9-9d8e59a0f9a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Content\Shaders\Billboard">
+      <UniqueIdentifier>{1977c4cd-ffd6-421a-904b-58ea01357094}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
@@ -201,6 +204,15 @@
     </FxCompile>
     <FxCompile Include="PingPongPixelShader2.hlsl">
       <Filter>Content</Filter>
+    </FxCompile>
+    <FxCompile Include="BillboardVertexShader.hlsl">
+      <Filter>Content\Shaders\Billboard</Filter>
+    </FxCompile>
+    <FxCompile Include="BillboardGeometryShader.hlsl">
+      <Filter>Content\Shaders\Billboard</Filter>
+    </FxCompile>
+    <FxCompile Include="BillboardPixelShader.hlsl">
+      <Filter>Content\Shaders\Billboard</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

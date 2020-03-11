@@ -35,12 +35,12 @@ VertexShaderOutput main(HS_Factors input, float2 UV : SV_DomainLocation)
     
     float pi = 3.14159265359f;
     
-    float radius1 = 2.0f;
-    float radius2 = 0.5f;
+    float radius1 = 3.0f;
+    float radius2 = 1.0f;
     
     float x = (radius1 + radius2 * cos(UV.x * pi * 2.0f)) * cos(UV.y * pi * 2.0f);
     float y = (radius1 + radius2 * cos(UV.x * pi * 2.0f)) * sin(UV.y * pi * 2.0f);
-    float z = radius2 * sin(UV.y * pi * 2.0f);
+    float z = radius2 * sin(UV.x * pi * 2.0f);
     
     output.pos = float4(x, y, z, 1.0f);
     

@@ -175,6 +175,7 @@ void Sample3DSceneRenderer::Render()
 
 			mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
 			mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
 			mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
 			mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
@@ -194,6 +195,7 @@ void Sample3DSceneRenderer::Render()
 
 			mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
 			mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
 			mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
 			mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
@@ -212,6 +214,7 @@ void Sample3DSceneRenderer::Render()
 
 			mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
 			mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
 			mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
 			mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
@@ -227,6 +230,18 @@ void Sample3DSceneRenderer::Render()
 		mParametricHullShader->ReleaseProgram(m_deviceResources);
 		mParametricSphereDomainShader->ReleaseProgram(m_deviceResources);
 		mParametricFragmentShader->ReleaseProgram(m_deviceResources);
+
+		{
+			mBillboardVertexShader->UseProgram(m_deviceResources);
+			mBillboardGeometryShader->UseProgram(m_deviceResources);
+			mBillboardFragmentShader->UseProgram(m_deviceResources);
+
+			mPointModel->UseModel(m_deviceResources);
+
+			mBillboardVertexShader->ReleaseProgram(m_deviceResources);
+			mBillboardGeometryShader->ReleaseProgram(m_deviceResources);
+			mBillboardFragmentShader->ReleaseProgram(m_deviceResources);
+		}
 	
 		mGeometryFramebuffer->ReleaseFramebuffer(m_deviceResources);
 	}
@@ -279,13 +294,6 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mPingPongFragmentShader = std::make_unique<FragmentShader>(L"PingPongPixelShader.cso");
 	mPingPongFragmentShader2 = std::make_unique<FragmentShader>(L"PingPongPixelShader2.cso");
 
-	mParametricVertexShader = std::make_unique<VertexShader>(L"ParametricVertexShader.cso");
-	mParametricHullShader = std::make_unique<HullShader>(L"ParametricHullShader.cso");
-	mParametricSphereDomainShader = std::make_unique<DomainShader>(L"ParametricSphereDomainShader.cso");
-	mParametricElipsoidDomainShader = std::make_unique<DomainShader>(L"ParametricElipsoidDomainShader.cso");
-	mParametricTorusDomainShader = std::make_unique<DomainShader>(L"ParametricTorusDomainShader.cso");
-	mParametricFragmentShader = std::make_unique<FragmentShader>(L"ParametricFragmentShader.cso");
-
 	mRayVertexShader->Load(m_deviceResources);
 	mRayTracingFragmentShader->Load(m_deviceResources);
 	mRayMarchingFragmentShader->Load(m_deviceResources);
@@ -293,12 +301,27 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mPingPongFragmentShader->Load(m_deviceResources);
 	mPingPongFragmentShader2->Load(m_deviceResources);
 
+	mParametricVertexShader = std::make_unique<VertexShader>(L"ParametricVertexShader.cso");
+	mParametricHullShader = std::make_unique<HullShader>(L"ParametricHullShader.cso");
+	mParametricSphereDomainShader = std::make_unique<DomainShader>(L"ParametricSphereDomainShader.cso");
+	mParametricElipsoidDomainShader = std::make_unique<DomainShader>(L"ParametricElipsoidDomainShader.cso");
+	mParametricTorusDomainShader = std::make_unique<DomainShader>(L"ParametricTorusDomainShader.cso");
+	mParametricFragmentShader = std::make_unique<FragmentShader>(L"ParametricFragmentShader.cso");
+
 	mParametricVertexShader->Load(m_deviceResources);
 	mParametricHullShader->Load(m_deviceResources);
 	mParametricSphereDomainShader->Load(m_deviceResources);
 	mParametricElipsoidDomainShader->Load(m_deviceResources);
 	mParametricTorusDomainShader->Load(m_deviceResources);
 	mParametricFragmentShader->Load(m_deviceResources);
+
+	mBillboardVertexShader = std::make_unique<VertexShader>(L"BillboardVertexShader.cso");
+	mBillboardGeometryShader = std::make_unique<GeometryShader>(L"BillboardGeometryShader.cso");
+	mBillboardFragmentShader = std::make_unique<FragmentShader>(L"BillboardPixelShader.cso");
+
+	mBillboardVertexShader->Load(m_deviceResources);
+	mBillboardGeometryShader->Load(m_deviceResources);
+	mBillboardFragmentShader->Load(m_deviceResources);
 
 	mRayTracingFramebuffer = std::make_unique<Framebuffer>();
 	mRayMarchingFramebuffer = std::make_unique<Framebuffer>();
@@ -342,6 +365,24 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 	mModel = std::make_unique<Model>(cubeVertices, cubeIndices);
 	mModel->Load(m_deviceResources);
+
+	std::vector<VertexPositionColor> pointVertices;
+	std::vector<unsigned int> pointIndices;
+
+	for (int i = 55; i < 150; i += 5)
+	{
+		for (int j = 5; j < 100; j += 5)
+		{
+			pointVertices.push_back({ XMFLOAT3(i, 0.0f, j), XMFLOAT3(0.0f, 0.0f, 0.0f) });
+			pointVertices.push_back({ XMFLOAT3(-i, 0.0f, j), XMFLOAT3(0.0f, 0.0f, 0.0f) });
+
+			pointIndices.push_back(pointIndices.size());
+			pointIndices.push_back(pointIndices.size());
+		}
+	}
+
+	mPointModel = std::make_unique<PointModel>(pointVertices, pointIndices);
+	mPointModel->Load(m_deviceResources);
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof samplerDesc);
