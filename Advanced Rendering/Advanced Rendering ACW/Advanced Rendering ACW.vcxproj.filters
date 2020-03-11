@@ -109,6 +109,9 @@
     <ClCompile Include="Framebuffer.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="PointModel.cpp" />
+    <ClCompile Include="DDSTextureLoader.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -147,6 +150,9 @@
     <ClInclude Include="Framebuffer.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="PointModel.h" />
+    <ClInclude Include="DDSTextureLoader.h" />
+    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
