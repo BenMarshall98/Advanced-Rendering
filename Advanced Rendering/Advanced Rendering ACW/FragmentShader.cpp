@@ -27,9 +27,12 @@ void FragmentShader::UseProgram(std::shared_ptr<DX::DeviceResources> pDeviceReso
 	auto context = pDeviceResources->GetD3DDeviceContext();
 	
 	// Attach our pixel shader.
-	context->PSSetShader(
-		mPixelShader.Get(),
-		nullptr,
-		0
-	);
+	context->PSSetShader(mPixelShader.Get(), nullptr, 0);
+}
+
+void FragmentShader::ReleaseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources)
+{
+	auto context = pDeviceResources->GetD3DDeviceContext();
+
+	context->PSSetShader(mPixelShader.Get(), nullptr, 0);
 }

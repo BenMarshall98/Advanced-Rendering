@@ -27,12 +27,11 @@ PixelShaderInput main(VertexShaderInput input)
     PixelShaderInput output;
     float4 pos = float4(sign(input.pos.xz), 0.0f, 1.0f);
 
+    pos.y *= -1.0f;
     output.pos = pos;
-    
-    float aspectRatio = projection._m11 / projection._m00;
 
 	// Pass the color through without modification.
-    output.canvasCoord = sign(input.pos.xz) * float2(aspectRatio, 1.0);
+    output.canvasCoord = sign(input.pos.xz);// * float2(aspectRatio, 1.0);
 
     return output;
 }

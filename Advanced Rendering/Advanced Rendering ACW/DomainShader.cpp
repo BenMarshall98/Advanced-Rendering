@@ -26,9 +26,12 @@ void DomainShader::UseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResour
 {
 	auto context = pDeviceResources->GetD3DDeviceContext();
 
-	context->DSSetShader(
-		mDomainShader.Get(),
-		nullptr,
-		0
-	);
+	context->DSSetShader(mDomainShader.Get(), nullptr, 0);
+}
+
+void DomainShader::ReleaseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources)
+{
+	auto context = pDeviceResources->GetD3DDeviceContext();
+
+	context->DSSetShader(nullptr, nullptr, 0);
 }

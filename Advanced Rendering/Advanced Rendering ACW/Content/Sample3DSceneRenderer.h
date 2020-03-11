@@ -49,12 +49,14 @@ namespace Advanced_Rendering
 
 		std::unique_ptr<VertexShader> mPingPongVertexShader;
 		std::unique_ptr<FragmentShader> mPingPongFragmentShader;
+		std::unique_ptr<FragmentShader> mPingPongFragmentShader2;
 
 		std::unique_ptr<Framebuffer> mPingPongFramebuffer1;
 		std::unique_ptr<Framebuffer> mPingPongFramebuffer2;
 
 		std::unique_ptr<Model> mModel;
 		std::unique_ptr<ConstantBuffer<ModelViewProjectionConstantBuffer>> mConstantBuffer;
+		std::unique_ptr<ConstantBuffer<RayConstantBuffer>> mRayConstantBuffer;
 
 		std::unique_ptr<VertexShader> mParametricVertexShader;
 		std::unique_ptr<HullShader> mParametricHullShader;
@@ -63,12 +65,15 @@ namespace Advanced_Rendering
 		std::unique_ptr<DomainShader> mParametricTorusDomainShader;
 		std::unique_ptr<FragmentShader> mParametricFragmentShader;
 
+		std::unique_ptr<Framebuffer> mGeometryFramebuffer;
+
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSampler;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_wireframeRasterizerState;
 
 
 		// System resources for cube geometry.
 		ModelViewProjectionConstantBuffer	m_constantBufferData;
+		RayConstantBuffer m_rayConstantBufferData;
 
 		// Variables used with the rendering loop.
 		bool	m_loadingComplete;

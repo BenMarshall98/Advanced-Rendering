@@ -33,18 +33,24 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources()
 		fovAngleY *= 2.0f;
 	}
 
-	// Note that the OrientationTransform3D matrix is post-multiplied here
+	m_rayConstantBufferData.aspectRatio = aspectRatio;
+	m_rayConstantBufferData.farPlane = 1000.0f;
+	m_rayConstantBufferData.nearPlane = 1.0f;
+	m_rayConstantBufferData.fov = fovAngleY;
+	m_rayConstantBufferData.width = outputSize.Width;
+	m_rayConstantBufferData.height = outputSize.Height;
+
+	// Note that the OrientationTrawnsform3D matrix is post-multiplied here
 	// in order to correctly orient the scene to match the display orientation.
 	// This post-multiplication step is required for any draw calls that are
 	// made to the swap chain render target. For draw calls to other targets,
 	// this transform should not be applied.
-
 	// This sample makes use of a right-handed coordinate system using row-major matrices.
 	XMMATRIX perspectiveMatrix = XMMatrixPerspectiveFovRH(
 		fovAngleY,
 		aspectRatio,
-		0.01f,
-		100.0f
+		1.0f,
+		1000.0f
 		);
 
 	XMFLOAT4X4 orientation = m_deviceResources->GetOrientationTransform3D();
@@ -57,9 +63,9 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources()
 		);
 
 	// Eye is at (0,0.7,1.5), looking at point (0,-0.1,0) with the up-vector along the y-axis.
-	static const XMFLOAT3 eye = { 0.0f, 0.0f, -5.0f };
-	static const XMFLOAT3 at = { 0.0f, 0.0f, 0.0f };
-	static const XMFLOAT3 up = { 0.0f, 1.0f, 0.0f };
+	static const XMFLOAT3 eye = { 0.0f, 5.0f, -5.0f };
+	static const XMFLOAT3 at = { 0.0f, 5.0f, 0.0f };
+	static const XMFLOAT3 up = { 0.0f, -1.0f, 0.0f };
 
 	mCamera = std::make_unique<Camera>(eye, up, at);
 
@@ -120,66 +126,140 @@ void Sample3DSceneRenderer::Render()
 
 	// Prepare the constant buffer to send it to the graphics device.
 	mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
+	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
 	mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
 	mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
-	////Ray Tracing
-	//{
-	//	mRayTracingFramebuffer->UseFramebuffer(m_deviceResources);
+	mRayConstantBuffer->UpdateBuffer(m_deviceResources, m_rayConstantBufferData);
+	mRayConstantBuffer->UsePSBuffer(m_deviceResources, 1);
 
-	//	mRayVertexShader->UseProgram(m_deviceResources);
-	//	mRayTracingFragmentShader->UseProgram(m_deviceResources);
+	//Ray Tracing
+	{
+		mRayTracingFramebuffer->UseFramebuffer(m_deviceResources);
 
-	//	mModel->UseModel(m_deviceResources);
+		mRayVertexShader->UseProgram(m_deviceResources);
+		mRayTracingFragmentShader->UseProgram(m_deviceResources);
 
-	//	mRayTracingFramebuffer->ReleaseFramebuffer(m_deviceResources);
-	//}
+		mModel->UseModel(m_deviceResources);
 
-	////Ray Marching
-	//{
-	//	mRayMarchingFramebuffer->UseFramebuffer(m_deviceResources);
+		mRayTracingFramebuffer->ReleaseFramebuffer(m_deviceResources);
+	}
 
-	//	mRayVertexShader->UseProgram(m_deviceResources);
-	//	mRayMarchingFragmentShader->UseProgram(m_deviceResources);
+	//Ray Marching
+	{
+		mRayMarchingFramebuffer->UseFramebuffer(m_deviceResources);
 
-	//	mModel->UseModel(m_deviceResources);
+		mRayVertexShader->UseProgram(m_deviceResources);
+		mRayMarchingFragmentShader->UseProgram(m_deviceResources);
 
-	//	mRayTracingFramebuffer->ReleaseFramebuffer(m_deviceResources);
-	//}
+		mModel->UseModel(m_deviceResources);
 
-	//
+		mRayTracingFramebuffer->ReleaseFramebuffer(m_deviceResources);
+	}
 
-	//const auto context = m_deviceResources->GetD3DDeviceContext();
+	const auto context = m_deviceResources->GetD3DDeviceContext();
 
-	//ID3D11RenderTargetView *const targets[1] = { m_deviceResources->GetBackBufferRenderTargetView() };
-	//context->OMSetRenderTargets(1, targets, m_deviceResources->GetDepthStencilView());
+	//Tessellated / Geometric Shapes
+	{
+		mGeometryFramebuffer->UseFramebuffer(m_deviceResources);
+		
+		mParametricVertexShader->UseProgram(m_deviceResources);
+		mParametricHullShader->UseProgram(m_deviceResources);
+		mParametricFragmentShader->UseProgram(m_deviceResources);
 
-	//context->PSSetSamplers(0, 1, mSampler.GetAddressOf());
+		//Sphere
+		{
+			mParametricSphereDomainShader->UseProgram(m_deviceResources);
+			
+			DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 10.0f)));
 
-	//mRayTracingFramebuffer->UseTexture(m_deviceResources, 0);
-	//mRayMarchingFramebuffer->UseTexture(m_deviceResources, 2);
+			mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
+			mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
-	//mPingPongVertexShader->UseProgram(m_deviceResources);
-	//mPingPongFragmentShader->UseProgram(m_deviceResources);
+			context->IASetInputLayout(nullptr);
+			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 
-	//mModel->UseModel(m_deviceResources);
+			context->RSSetState(m_wireframeRasterizerState.Get());
 
-	//mRayTracingFramebuffer->ReleaseTexture(m_deviceResources, 0);
-	//mRayMarchingFramebuffer->ReleaseTexture(m_deviceResources, 2);
+			context->Draw(4, 0);
+		}
 
-	auto context = m_deviceResources->GetD3DDeviceContext();
+		//Elipsoid
+		{
+			mParametricElipsoidDomainShader->UseProgram(m_deviceResources);
+			
+			DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 20.0f)));
 
-	mParametricVertexShader->UseProgram(m_deviceResources);
-	mParametricHullShader->UseProgram(m_deviceResources);
-	mParametricSphereDomainShader->UseProgram(m_deviceResources);
-	mParametricFragmentShader->UseProgram(m_deviceResources);
+			mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
+			mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
-	context->IASetInputLayout(nullptr);
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+			context->IASetInputLayout(nullptr);
+			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 
-	context->RSSetState(m_wireframeRasterizerState.Get());
+			context->RSSetState(m_wireframeRasterizerState.Get());
+			context->Draw(4, 0);
+		}
 
-	context->Draw(4, 0);
+		//Torus
+		{
+			mParametricTorusDomainShader->UseProgram(m_deviceResources);
+
+			DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 30.0f)));
+
+			mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
+			mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
+
+			context->IASetInputLayout(nullptr);
+			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+
+			context->RSSetState(m_wireframeRasterizerState.Get());
+
+			context->Draw(4, 0);
+		}
+	
+		mParametricVertexShader->ReleaseProgram(m_deviceResources);
+		mParametricHullShader->ReleaseProgram(m_deviceResources);
+		mParametricSphereDomainShader->ReleaseProgram(m_deviceResources);
+		mParametricFragmentShader->ReleaseProgram(m_deviceResources);
+	
+		mGeometryFramebuffer->ReleaseFramebuffer(m_deviceResources);
+	}
+	context->PSSetSamplers(0, 1, mSampler.GetAddressOf());
+
+	mPingPongFramebuffer1->UseFramebuffer(m_deviceResources);
+
+	mRayTracingFramebuffer->UseTexture(m_deviceResources, 0);
+	mRayMarchingFramebuffer->UseTexture(m_deviceResources, 2);
+
+	mPingPongVertexShader->UseProgram(m_deviceResources);
+	mPingPongFragmentShader->UseProgram(m_deviceResources);
+
+	mModel->UseModel(m_deviceResources);
+
+	mRayTracingFramebuffer->ReleaseTexture(m_deviceResources, 0);
+	mRayMarchingFramebuffer->ReleaseTexture(m_deviceResources, 2);
+
+	mPingPongFramebuffer1->ReleaseFramebuffer(m_deviceResources);
+
+	ID3D11RenderTargetView *const targets[1] = { m_deviceResources->GetBackBufferRenderTargetView() };
+	context->OMSetRenderTargets(1, targets, m_deviceResources->GetDepthStencilView());
+
+	mPingPongFramebuffer1->UseTexture(m_deviceResources, 0);
+	mGeometryFramebuffer->UseTexture(m_deviceResources, 2);
+
+	mPingPongVertexShader->UseProgram(m_deviceResources);
+	mPingPongFragmentShader2->UseProgram(m_deviceResources);
+
+	mModel->UseModel(m_deviceResources);
+
+	mPingPongFramebuffer1->ReleaseTexture(m_deviceResources, 0);
+	mGeometryFramebuffer->ReleaseTexture(m_deviceResources, 2);
 }
 
 void Sample3DSceneRenderer::CreateDeviceDependentResources()
@@ -197,6 +277,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mRayMarchingFragmentShader = std::make_unique<FragmentShader>(L"RayMarchingPixelShader.cso");
 	mPingPongVertexShader = std::make_unique<VertexShader>(L"PingPongVertexShader.cso");
 	mPingPongFragmentShader = std::make_unique<FragmentShader>(L"PingPongPixelShader.cso");
+	mPingPongFragmentShader2 = std::make_unique<FragmentShader>(L"PingPongPixelShader2.cso");
 
 	mParametricVertexShader = std::make_unique<VertexShader>(L"ParametricVertexShader.cso");
 	mParametricHullShader = std::make_unique<HullShader>(L"ParametricHullShader.cso");
@@ -210,6 +291,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mRayMarchingFragmentShader->Load(m_deviceResources);
 	mPingPongVertexShader->Load(m_deviceResources);
 	mPingPongFragmentShader->Load(m_deviceResources);
+	mPingPongFragmentShader2->Load(m_deviceResources);
 
 	mParametricVertexShader->Load(m_deviceResources);
 	mParametricHullShader->Load(m_deviceResources);
@@ -220,12 +302,23 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 	mRayTracingFramebuffer = std::make_unique<Framebuffer>();
 	mRayMarchingFramebuffer = std::make_unique<Framebuffer>();
+	mGeometryFramebuffer = std::make_unique<Framebuffer>();
 
 	mRayTracingFramebuffer->LoadFramebuffer(m_deviceResources);
 	mRayMarchingFramebuffer->LoadFramebuffer(m_deviceResources);
+	mGeometryFramebuffer->LoadFramebuffer(m_deviceResources);
+
+	mPingPongFramebuffer1 = std::make_unique<Framebuffer>();
+	mPingPongFramebuffer2 = std::make_unique<Framebuffer>();
+
+	mPingPongFramebuffer1->LoadFramebuffer(m_deviceResources);
+	mPingPongFramebuffer2->LoadFramebuffer(m_deviceResources);
 
 	mConstantBuffer = std::make_unique<ConstantBuffer<ModelViewProjectionConstantBuffer>>();
 	mConstantBuffer->Load(m_deviceResources);
+
+	mRayConstantBuffer = std::make_unique<ConstantBuffer<RayConstantBuffer>>();
+	mRayConstantBuffer->Load(m_deviceResources);
 
 	// Load mesh vertices. Each vertex has a position and a color.
 	static const std::vector<VertexPositionColor> cubeVertices = 

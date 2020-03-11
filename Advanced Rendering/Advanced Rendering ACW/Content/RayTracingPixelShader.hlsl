@@ -13,6 +13,17 @@ cbuffer ModelViewProjectionConstantBuffer : register(b0)
     float4 eyePosition;
 };
 
+cbuffer RayConstantBuffer : register(b1)
+{
+    float aspectRatio;
+    float fov;
+    float nearPlane;
+    float farPlane;
+    float width;
+    float height;
+    float2 padding;
+};
+
 // Per-pixel color data passed through the pixel shader.
 struct PixelShaderInput
 {
@@ -67,9 +78,6 @@ struct Quad
     float4 color;
     float Kd, ks, kr, shininess;
 };
-
-static float nearPlane = 1.0f;
-static float farPlane = 1000.0f;
 
 static float4 lightColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 static float3 lightPos = float3(0.0f, 5.0f, 0.0f);
@@ -198,10 +206,13 @@ float terrain(in float2 st);
 // A pass-through function for the (interpolated) color data.
 PixelShaderOutput main(PixelShaderInput input) : SV_TARGET
 {
-    float zoom = 1.0f;
-    float2 xy = zoom * input.canvasCoord;
+    float2 xy = input.canvasCoord;
+    
+    float x = xy.x * tan(fov / 2.0f) * aspectRatio;
+    float y = xy.y * tan(fov / 2.0f);
+    
     float distEye2Canvas = nearPlane;
-    float3 PixelPos = float3(xy, -distEye2Canvas);
+    float3 PixelPos = normalize(float3(x, y, -1));
 
     float3 xaxis = view._m00_m10_m20;
     float3 yaxis = view._m01_m11_m21;

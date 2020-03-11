@@ -21,3 +21,17 @@ void GeometryShader::Reset()
 {
 	mGeometryShader.Reset();
 }
+
+void GeometryShader::UseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources)
+{
+	auto context = pDeviceResources->GetD3DDeviceContext();
+
+	context->GSSetShader(mGeometryShader.Get(), nullptr, 0);
+}
+
+void GeometryShader::ReleaseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources)
+{
+	auto context = pDeviceResources->GetD3DDeviceContext();
+
+	context->GSSetShader(nullptr, nullptr, 0);
+}

@@ -17,4 +17,15 @@ namespace Advanced_Rendering
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT3 color;
 	};
+
+	struct RayConstantBuffer
+	{
+		float aspectRatio;
+		float fov;
+		float nearPlane;
+		float farPlane;
+		float width;
+		float height;
+		DirectX::XMFLOAT2 padding;
+	};
 }

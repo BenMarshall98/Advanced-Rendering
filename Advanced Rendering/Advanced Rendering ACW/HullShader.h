@@ -14,5 +14,6 @@ public:
 	void Load(std::shared_ptr<DX::DeviceResources> pDeviceResources) override;
 	void Reset() override;
 	void UseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources) override;
+	void ReleaseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources) override;
 };
 

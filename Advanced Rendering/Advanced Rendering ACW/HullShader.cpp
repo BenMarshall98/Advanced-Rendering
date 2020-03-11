@@ -26,9 +26,12 @@ void HullShader::UseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResource
 {
 	auto context = pDeviceResources->GetD3DDeviceContext();
 
-	context->HSSetShader(
-		mHullShader.Get(),
-		nullptr,
-		0
-	);
+	context->HSSetShader(mHullShader.Get(), nullptr, 0);
+}
+
+void HullShader::ReleaseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources)
+{
+	auto context = pDeviceResources->GetD3DDeviceContext();
+
+	context->HSSetShader(nullptr, nullptr, 0);
 }

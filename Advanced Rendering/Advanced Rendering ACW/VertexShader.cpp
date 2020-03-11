@@ -45,9 +45,14 @@ void VertexShader::UseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResour
 	
 	context->IASetInputLayout(mInputLayout.Get());
 
-	context->VSSetShader(
-		mVertexShader.Get(),
-		nullptr,
-		0
-	);
+	context->VSSetShader(mVertexShader.Get(), nullptr, 0);
+}
+
+void VertexShader::ReleaseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources)
+{
+	auto context = pDeviceResources->GetD3DDeviceContext();
+
+	context->IASetInputLayout(nullptr);
+
+	context->VSSetShader(nullptr, nullptr, 0);
 }

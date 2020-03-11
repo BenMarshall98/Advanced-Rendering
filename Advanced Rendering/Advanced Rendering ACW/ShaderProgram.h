@@ -15,5 +15,6 @@ public:
 	virtual void Load(std::shared_ptr<DX::DeviceResources> pDeviceResources) = 0;
 	virtual void Reset() = 0;
 	virtual void UseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources) = 0;
+	virtual void ReleaseProgram(std::shared_ptr<DX::DeviceResources> pDeviceResources) = 0;
 };
 
