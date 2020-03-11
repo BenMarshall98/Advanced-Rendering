@@ -14,6 +14,7 @@
 #include "Framebuffer.h"
 #include "GeometryShader.h"
 #include "PointModel.h"
+#include "TessModel.h"
 
 namespace Advanced_Rendering
 {
@@ -58,6 +59,7 @@ namespace Advanced_Rendering
 
 		std::unique_ptr<Model> mModel;
 		std::unique_ptr<PointModel> mPointModel;
+		std::unique_ptr<TessModel> mTessModel;
 		std::unique_ptr<ConstantBuffer<ModelViewProjectionConstantBuffer>> mConstantBuffer;
 		std::unique_ptr<ConstantBuffer<RayConstantBuffer>> mRayConstantBuffer;
 
@@ -68,6 +70,12 @@ namespace Advanced_Rendering
 		std::unique_ptr<DomainShader> mParametricTorusDomainShader;
 		std::unique_ptr<FragmentShader> mParametricFragmentShader;
 
+		std::unique_ptr<VertexShader> mRockVertexShader;
+		std::unique_ptr<HullShader> mRockUserHullShader;
+		std::unique_ptr<HullShader> mRockViewHullShader;
+		std::unique_ptr<DomainShader> mRockDomainShader;
+		std::unique_ptr<FragmentShader> mRockFragmentShader;
+
 		std::unique_ptr<VertexShader> mBillboardVertexShader;
 		std::unique_ptr<GeometryShader> mBillboardGeometryShader;
 		std::unique_ptr<FragmentShader> mBillboardFragmentShader;
@@ -75,8 +83,8 @@ namespace Advanced_Rendering
 		std::unique_ptr<Framebuffer> mGeometryFramebuffer;
 
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSampler;
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_normalRasterizerState;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_wireframeRasterizerState;
-
 
 		// System resources for cube geometry.
 		ModelViewProjectionConstantBuffer	m_constantBufferData;

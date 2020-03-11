@@ -124,6 +124,10 @@ void Sample3DSceneRenderer::Render()
 		return;
 	}
 
+	const auto context = m_deviceResources->GetD3DDeviceContext();
+
+	context->RSSetState(m_normalRasterizerState.Get());
+
 	// Prepare the constant buffer to send it to the graphics device.
 	mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
 	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
@@ -157,8 +161,6 @@ void Sample3DSceneRenderer::Render()
 		mRayTracingFramebuffer->ReleaseFramebuffer(m_deviceResources);
 	}
 
-	const auto context = m_deviceResources->GetD3DDeviceContext();
-
 	//Tessellated / Geometric Shapes
 	{
 		mGeometryFramebuffer->UseFramebuffer(m_deviceResources);
@@ -182,8 +184,6 @@ void Sample3DSceneRenderer::Render()
 			context->IASetInputLayout(nullptr);
 			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 
-			context->RSSetState(m_wireframeRasterizerState.Get());
-
 			context->Draw(4, 0);
 		}
 
@@ -202,7 +202,6 @@ void Sample3DSceneRenderer::Render()
 			context->IASetInputLayout(nullptr);
 			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 
-			context->RSSetState(m_wireframeRasterizerState.Get());
 			context->Draw(4, 0);
 		}
 
@@ -221,9 +220,29 @@ void Sample3DSceneRenderer::Render()
 			context->IASetInputLayout(nullptr);
 			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 
+			context->Draw(4, 0);
+		}
+
+		//Rock1
+		{
+			DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixMultiply(DirectX::XMMatrixScaling(0.01f, 0.01f, 0.01f), DirectX::XMMatrixTranslation(0.0f, 5.0f, 40.0f))));
+
+			mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
+			mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
+
+			mRockVertexShader->UseProgram(m_deviceResources);
+			mRockUserHullShader->UseProgram(m_deviceResources);
+			mRockDomainShader->UseProgram(m_deviceResources);
+			mRockFragmentShader->UseProgram(m_deviceResources);
+
 			context->RSSetState(m_wireframeRasterizerState.Get());
 
-			context->Draw(4, 0);
+			mTessModel->UseModel(m_deviceResources);
+
+			context->RSSetState(m_normalRasterizerState.Get());
 		}
 	
 		mParametricVertexShader->ReleaseProgram(m_deviceResources);
@@ -280,17 +299,24 @@ void Sample3DSceneRenderer::Render()
 void Sample3DSceneRenderer::CreateDeviceDependentResources()
 {
 	D3D11_RASTERIZER_DESC rasterizerDesc = CD3D11_RASTERIZER_DESC(D3D11_DEFAULT);
-
-	//rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
 	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+
+	m_deviceResources->GetD3DDevice()->CreateRasterizerState(&rasterizerDesc, m_normalRasterizerState.GetAddressOf());
+
+	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
 
 	m_deviceResources->GetD3DDevice()->CreateRasterizerState(&rasterizerDesc, m_wireframeRasterizerState.GetAddressOf());
 
+	std::vector<D3D11_INPUT_ELEMENT_DESC> normalInputLayout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
 
-	mRayVertexShader = std::make_unique<VertexShader>(L"RayVertexShader.cso");
+	mRayVertexShader = std::make_unique<VertexShader>(L"RayVertexShader.cso", normalInputLayout);
 	mRayTracingFragmentShader = std::make_unique<FragmentShader>(L"RayTracingPixelShader.cso");
 	mRayMarchingFragmentShader = std::make_unique<FragmentShader>(L"RayMarchingPixelShader.cso");
-	mPingPongVertexShader = std::make_unique<VertexShader>(L"PingPongVertexShader.cso");
+	mPingPongVertexShader = std::make_unique<VertexShader>(L"PingPongVertexShader.cso", normalInputLayout);
 	mPingPongFragmentShader = std::make_unique<FragmentShader>(L"PingPongPixelShader.cso");
 	mPingPongFragmentShader2 = std::make_unique<FragmentShader>(L"PingPongPixelShader2.cso");
 
@@ -301,7 +327,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mPingPongFragmentShader->Load(m_deviceResources);
 	mPingPongFragmentShader2->Load(m_deviceResources);
 
-	mParametricVertexShader = std::make_unique<VertexShader>(L"ParametricVertexShader.cso");
+	mParametricVertexShader = std::make_unique<VertexShader>(L"ParametricVertexShader.cso", normalInputLayout);
 	mParametricHullShader = std::make_unique<HullShader>(L"ParametricHullShader.cso");
 	mParametricSphereDomainShader = std::make_unique<DomainShader>(L"ParametricSphereDomainShader.cso");
 	mParametricElipsoidDomainShader = std::make_unique<DomainShader>(L"ParametricElipsoidDomainShader.cso");
@@ -315,7 +341,28 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mParametricTorusDomainShader->Load(m_deviceResources);
 	mParametricFragmentShader->Load(m_deviceResources);
 
-	mBillboardVertexShader = std::make_unique<VertexShader>(L"BillboardVertexShader.cso");
+	std::vector<D3D11_INPUT_ELEMENT_DESC> tessInputLayout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 2, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	mRockVertexShader = std::make_unique<VertexShader>(L"RockVertexShader.cso", tessInputLayout);
+	mRockUserHullShader = std::make_unique<HullShader>(L"RockUserHullShader.cso");
+	mRockViewHullShader = std::make_unique<HullShader>(L"RockViewHullShader.cso");
+	mRockDomainShader = std::make_unique<DomainShader>(L"RockDomainShader.cso");
+	mRockFragmentShader = std::make_unique<FragmentShader>(L"RockPixelShader.cso");
+
+	mRockVertexShader->Load(m_deviceResources);
+	mRockUserHullShader->Load(m_deviceResources);
+	mRockViewHullShader->Load(m_deviceResources);
+	mRockDomainShader->Load(m_deviceResources);
+	mRockFragmentShader->Load(m_deviceResources);
+
+	mBillboardVertexShader = std::make_unique<VertexShader>(L"BillboardVertexShader.cso", normalInputLayout);
 	mBillboardGeometryShader = std::make_unique<GeometryShader>(L"BillboardGeometryShader.cso");
 	mBillboardFragmentShader = std::make_unique<FragmentShader>(L"BillboardPixelShader.cso");
 
@@ -383,6 +430,9 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 	mPointModel = std::make_unique<PointModel>(pointVertices, pointIndices);
 	mPointModel->Load(m_deviceResources);
+
+	mTessModel = std::make_unique<TessModel>("rock.sim");
+	mTessModel->Load(m_deviceResources);
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof samplerDesc);

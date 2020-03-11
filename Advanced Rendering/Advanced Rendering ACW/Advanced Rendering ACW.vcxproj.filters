@@ -115,6 +115,7 @@
     <ClCompile Include="PointModel.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TessModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="PointModel.h" />
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TessModel.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -182,7 +184,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Advanced Rendering ACW_TemporaryKey.pfx" />
-    <None Include="Rock\OBJ\OBJ.mtl" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\RayTracingPixelShader.hlsl">
@@ -230,8 +231,13 @@
     <FxCompile Include="BillboardPixelShader.hlsl">
       <Filter>Content\Shaders\Billboard</Filter>
     </FxCompile>
+    <FxCompile Include="RockUserHullShader.hlsl" />
+    <FxCompile Include="RockVertexShader.hlsl" />
+    <FxCompile Include="RockViewHullShader.hlsl" />
+    <FxCompile Include="RockDomainShader.hlsl" />
+    <FxCompile Include="RockPixelShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <Object Include="Rock\OBJ\OBJ.obj" />
+    <CopyFileToFolders Include="rock.sim" />
   </ItemGroup>
 </Project>
