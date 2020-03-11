@@ -161,12 +161,28 @@
     <Image Include="Assets\StoreLogo.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Rock\Textures\AO.jpg">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Rock\Textures\Cavity.jpg">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Rock\Textures\Displacement.jpg">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Rock\Textures\Normal map.jpg">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Rock\Textures\Texture.jpg">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Advanced Rendering ACW_TemporaryKey.pfx" />
+    <None Include="Rock\OBJ\OBJ.mtl" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\RayTracingPixelShader.hlsl">
@@ -214,5 +230,8 @@
     <FxCompile Include="BillboardPixelShader.hlsl">
       <Filter>Content\Shaders\Billboard</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Rock\OBJ\OBJ.obj" />
   </ItemGroup>
 </Project>

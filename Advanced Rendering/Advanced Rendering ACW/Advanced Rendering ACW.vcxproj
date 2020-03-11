@@ -250,6 +250,11 @@
     <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Image Include="Assets\StoreLogo.png" />
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
+    <Image Include="Rock\Textures\AO.jpg" />
+    <Image Include="Rock\Textures\Cavity.jpg" />
+    <Image Include="Rock\Textures\Displacement.jpg" />
+    <Image Include="Rock\Textures\Normal map.jpg" />
+    <Image Include="Rock\Textures\Texture.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -312,6 +317,7 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="Advanced Rendering ACW_TemporaryKey.pfx" />
+    <None Include="Rock\OBJ\OBJ.mtl" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BillboardGeometryShader.hlsl">
@@ -556,6 +562,18 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Rock\OBJ\OBJ.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
