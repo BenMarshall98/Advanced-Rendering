@@ -1,5 +1,14 @@
 //Based on example in Frank Luna's Introduction to 3D Game Programming with DirectX11
 
+cbuffer ModelViewProjectionConstantBuffer : register(b0)
+{
+    matrix model;
+    matrix inverseModel;
+    matrix view;
+    matrix projection;
+    float4 eyePosition;
+};
+
 struct PatchTess
 {
     float EdgeTess[3] : SV_TessFactor;
@@ -17,11 +26,22 @@ struct VS_OUTPUT
 
 PatchTess ConstantHS(InputPatch<VS_OUTPUT, 3> inPatch, uint patchID : SV_PrimitiveID)
 {
+    float3 triCenter = 0.33f * (inPatch[0].Pos + inPatch[1].Pos + inPatch[2].Pos);
+    
+    triCenter = mul(float4(triCenter, 1.0f), model).xyz;
+    
+    float d = length(triCenter - eyePosition.xyz);
+    
+    const float min = 2.0f;
+    const float max = 15.0f;
+    
+    float tess = 6.0f * saturate((max - d) / (max - min)) + 1.0f;
+    
     PatchTess outPatch;
-    outPatch.EdgeTess[0] = 1;
-    outPatch.EdgeTess[1] = 1;
-    outPatch.EdgeTess[2] = 1;
-    outPatch.InsideTess = 1;
+    outPatch.EdgeTess[0] = tess;
+    outPatch.EdgeTess[1] = tess;
+    outPatch.EdgeTess[2] = tess;
+    outPatch.InsideTess = tess;
     
     return outPatch;
 }
@@ -36,7 +56,7 @@ struct HS_OUTPUT
 };
 
 [domain("tri")]
-[partitioning("integer")]
+[partitioning("fractional_odd")]
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(3)]
 [patchconstantfunc("ConstantHS")]

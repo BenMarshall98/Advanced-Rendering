@@ -2,6 +2,7 @@
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
 {
     matrix model;
+    matrix inverseModel;
     matrix view;
     matrix projection;
     float4 eyePosition;

@@ -8,6 +8,10 @@ using namespace Windows::System::Threading;
 using namespace Concurrency;
 using namespace Windows::System;
 
+float Main::tesselation = 1.0f;
+float Main::height = 0.1f;
+bool Main::wireframe = true;
+
 // Loads and initializes application assets when the application is loaded.
 Main::Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
 	m_deviceResources(deviceResources)
@@ -141,6 +145,46 @@ void Main::OnKeyUp(const Windows::System::VirtualKey & pKey)
 	else if (pKey == VirtualKey::O)
 	{
 		m_sceneRenderer->mCamera->panBackward(false);
+	}
+	else if (pKey == VirtualKey::Number1)
+	{
+		tesselation -= 0.1f;
+
+		if (tesselation < 1.0f)
+		{
+			tesselation = 1.0f;
+		}
+	}
+	else if (pKey == VirtualKey::Number2)
+	{
+		tesselation += 0.1f;
+
+		if (tesselation > 7.0f)
+		{
+			tesselation = 7.0f;
+		}
+	}
+	else if (pKey == VirtualKey::Number3)
+	{
+		height -= 0.1f;
+
+		if (height < 0.1f)
+		{
+			height = 0.1f;
+		}
+	}
+	else if (pKey == VirtualKey::Number4)
+	{
+		height += 0.1f;
+
+		if (height > 1.0f)
+		{
+			height = 1.0f;
+		}
+	}
+	else if (pKey == VirtualKey::Number5)
+	{
+		wireframe = !wireframe;
 	}
 }
 

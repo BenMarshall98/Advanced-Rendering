@@ -25,6 +25,9 @@ namespace Advanced_Rendering
 		void Load(std::shared_ptr<DX::DeviceResources> pDeviceResources);
 		void UseTexture(std::shared_ptr<DX::DeviceResources> pDeviceResources, unsigned int pIndex) const;
 		void ReleaseTexture(std::shared_ptr<DX::DeviceResources> pDeviceResources, unsigned int pIndex) const;
+
+		void UseDomainTexture(std::shared_ptr<DX::DeviceResources> pDeviceResources, unsigned int pIndex) const;
+		void ReleaseDomainTexture(std::shared_ptr<DX::DeviceResources> pDeviceResources, unsigned int pIndex) const;
 		void Reset();
 	};
 }

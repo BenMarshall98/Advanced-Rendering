@@ -15,6 +15,7 @@
 #include "GeometryShader.h"
 #include "PointModel.h"
 #include "TessModel.h"
+#include "Texture.h"
 
 namespace Advanced_Rendering
 {
@@ -62,6 +63,7 @@ namespace Advanced_Rendering
 		std::unique_ptr<TessModel> mTessModel;
 		std::unique_ptr<ConstantBuffer<ModelViewProjectionConstantBuffer>> mConstantBuffer;
 		std::unique_ptr<ConstantBuffer<RayConstantBuffer>> mRayConstantBuffer;
+		std::unique_ptr<ConstantBuffer<TessConstantBuffer>> mTessConstantBuffer;
 
 		std::unique_ptr<VertexShader> mParametricVertexShader;
 		std::unique_ptr<HullShader> mParametricHullShader;
@@ -82,6 +84,10 @@ namespace Advanced_Rendering
 
 		std::unique_ptr<Framebuffer> mGeometryFramebuffer;
 
+		std::unique_ptr<Texture> mRockColorTexture;
+		std::unique_ptr<Texture> mRockDisplacementTexture;
+		std::unique_ptr<Texture> mRockNormalTexture;
+
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSampler;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_normalRasterizerState;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_wireframeRasterizerState;
@@ -89,6 +95,7 @@ namespace Advanced_Rendering
 		// System resources for cube geometry.
 		ModelViewProjectionConstantBuffer	m_constantBufferData;
 		RayConstantBuffer m_rayConstantBufferData;
+		TessConstantBuffer m_tessConstantBufferData;
 
 		// Variables used with the rendering loop.
 		bool	m_loadingComplete;

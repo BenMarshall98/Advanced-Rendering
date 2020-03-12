@@ -6,6 +6,7 @@ namespace Advanced_Rendering
 	struct ModelViewProjectionConstantBuffer
 	{
 		DirectX::XMFLOAT4X4 model;
+		DirectX::XMFLOAT4X4 inverseModel;
 		DirectX::XMFLOAT4X4 view;
 		DirectX::XMFLOAT4X4 projection;
 		DirectX::XMFLOAT4 eyePosition;
@@ -27,5 +28,19 @@ namespace Advanced_Rendering
 		float width;
 		float height;
 		DirectX::XMFLOAT2 padding;
+	};
+
+	struct TessConstantBuffer
+	{
+		float tess;
+		float height;
+	private:
+		DirectX::XMFLOAT2 padding;
+	};
+
+	struct LightConstantBuffer
+	{
+		DirectX::XMFLOAT4 lightColor;
+		DirectX::XMFLOAT4 lightPos;
 	};
 }

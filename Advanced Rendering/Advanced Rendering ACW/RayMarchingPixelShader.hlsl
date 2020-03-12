@@ -4,10 +4,11 @@
 // A constant buffer that stores the three basic column-major matrices for composing geometry.
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
 {
-	matrix model;
-	matrix view;
-	matrix projection;
-	float4 eyePosition;
+    matrix model;
+    matrix inverseModel;
+    matrix view;
+    matrix projection;
+    float4 eyePosition;
 };
 
 cbuffer RayConstantBuffer : register(b1)
@@ -20,6 +21,12 @@ cbuffer RayConstantBuffer : register(b1)
     float height;
     float2 padding;
 };
+
+cbuffer LightConstantBuffer : register(b2)
+{
+    float4 lightColor;
+    float4 lightPos;
+}
 
 // Per-pixel color data passed through the pixel shader.
 struct PixelShaderInput
@@ -46,10 +53,6 @@ struct Object
 	float4 color;
     int objectType;
 };
-
-static float4 lightColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
-static float3 lightPos = float3(0.0f, 5.0f, 0.0f);
-static float4 backgroundColor = float4(0.1f, 0.2f, 0.3f, 1.0f);
 
 //Shape Distance Functions
 float sdSphere(float3 position, float radius);

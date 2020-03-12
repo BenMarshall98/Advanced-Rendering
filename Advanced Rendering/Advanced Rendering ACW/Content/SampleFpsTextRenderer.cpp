@@ -3,6 +3,11 @@
 
 #include "Common/DirectXHelper.h"
 
+#include "Main.h"
+
+#include <iomanip>
+#include <sstream>
+
 using namespace Advanced_Rendering;
 using namespace Microsoft::WRL;
 
@@ -49,7 +54,25 @@ void SampleFpsTextRenderer::Update(DX::StepTimer const& timer)
 	// Update display text.
 	uint32 fps = timer.GetFramesPerSecond();
 
+	std::wstringstream stream;
+	stream << std::fixed << std::setprecision(1);
+	stream << "Current Tesselation: " << Main::tesselation << std::endl;
+	stream << "Current Height: " << Main::height << std::endl;
+	stream << "WireFrame: " << (Main::wireframe ? L"Enabled" : L"Disabled") << std::endl << std::endl;
+	stream << "Keys:" << std::endl;
+	stream << "Tesselation Value - 1 / 2" << std::endl;
+	stream << "Height Value - 3 / 4" << std::endl;
+	stream << "Wireframe - 5" << std::endl;
+	stream << "Camera Rotate L/R - A / D" << std::endl;
+	stream << "Camera Rotate U/D - W / S" << std::endl;
+	stream << "Camera Pan F/B - U / O" << std::endl;
+	stream << "Camera Pan U/D - I / K" << std::endl;
+	stream << "Camera Pan L/R - J / L" << std::endl;
+	std::wstring s = stream.str();
+
 	m_text = (fps > 0) ? std::to_wstring(fps) + L" FPS" : L" - FPS";
+	m_text += L"\n";
+	m_text += s;
 
 	ComPtr<IDWriteTextLayout> textLayout;
 	DX::ThrowIfFailed(
@@ -57,8 +80,8 @@ void SampleFpsTextRenderer::Update(DX::StepTimer const& timer)
 			m_text.c_str(),
 			(uint32) m_text.length(),
 			m_textFormat.Get(),
-			240.0f, // Max width of the input text.
-			50.0f, // Max height of the input text.
+			1000.0f, // Max width of the input text.
+			500.0f, // Max height of the input text.
 			&textLayout
 			)
 		);
@@ -94,7 +117,7 @@ void SampleFpsTextRenderer::Render()
 		);
 
 	context->DrawTextLayout(
-		D2D1::Point2F(0.f, 0.f),
+		D2D1::Point2F(-20.f, 0.f),
 		m_textLayout.Get(),
 		m_whiteBrush.Get()
 		);

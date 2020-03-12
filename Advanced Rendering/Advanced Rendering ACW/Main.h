@@ -24,6 +24,10 @@ namespace Advanced_Rendering
 		virtual void OnDeviceLost();
 		virtual void OnDeviceRestored();
 
+		static float tesselation;
+		static float height;
+		static bool wireframe;
+
 	private:
 		// Cached pointer to device resources.
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;

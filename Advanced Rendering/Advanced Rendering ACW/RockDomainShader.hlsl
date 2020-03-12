@@ -1,11 +1,22 @@
 //Based on example in Frank Luna's Introduction to 3D Game Programming with DirectX11
 
+Texture2D heightTexture : register(t0);
+SamplerState Sampler : register(s0);
+
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
 {
     matrix model;
+    matrix inverseModel;
     matrix view;
     matrix projection;
     float4 eyePosition;
+};
+
+cbuffer TessConstantBuffer : register(b1)
+{
+    float tess;
+    float height;
+    float2 padding;
 };
 
 struct PatchTess
@@ -43,7 +54,7 @@ DS_OUTPUT main(PatchTess patch, float3 uvw : SV_DomainLocation, const OutputPatc
     output.TexCoord += uvw[1] * tri[1].TexCoord;
     output.TexCoord += uvw[2] * tri[2].TexCoord;
     
-    float height = 0.1f;
+    float tempHeight = height * heightTexture.SampleLevel(Sampler, output.TexCoord, 0).x;
     
     //Position
     float3 pos = uvw[0] * tri[0].Pos;
@@ -53,12 +64,11 @@ DS_OUTPUT main(PatchTess patch, float3 uvw : SV_DomainLocation, const OutputPatc
     //Normal
     float3 normal = uvw[0] * tri[0].Normal;
     normal += uvw[1] * tri[1].Normal;
-    normal += uvw[2] * tri[2].Normal;
-    
-    pos += normalize(normal) * height;
-    
+    normal += uvw[2] * tri[2].Normal;    
     //FragmentPosition
     output.Pos = mul(float4(pos, 1.0f), model);
+    
+    output.Pos.xyz += normalize(normal) * tempHeight;
     
     output.FragmentPos = output.Pos.xyz;
     
@@ -75,9 +85,9 @@ DS_OUTPUT main(PatchTess patch, float3 uvw : SV_DomainLocation, const OutputPatc
     biTangent += uvw[1] * tri[1].BiTangent;
     biTangent += uvw[2] * tri[2].BiTangent;
     
-    //output.TBN = float3x3(normalize(mul(float4(normalize(tangent), 1.0f), InverseWorld).xyz),
-    //                    normalize(mul(float4(normalize(biTangent), 1.0f), InverseWorld).xyz),
-    //                    normalize(mul(float4(normalize(normal), 1.0f), InverseWorld).xyz));
+    output.TBN = float3x3(normalize(mul(float4(normalize(tangent), 1.0f), inverseModel).xyz),
+                        normalize(mul(float4(normalize(biTangent), 1.0f), inverseModel).xyz),
+                        normalize(mul(float4(normalize(normal), 1.0f), inverseModel).xyz));
     
     //ViewPosition
     output.ViewPosition = eyePosition;

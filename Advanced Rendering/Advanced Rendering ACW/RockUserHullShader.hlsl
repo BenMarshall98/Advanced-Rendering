@@ -1,5 +1,12 @@
 //Based on example in Frank Luna's Introduction to 3D Game Programming with DirectX11
 
+cbuffer TessConstantBuffer : register(b1)
+{
+    float tess;
+    float height;
+    float2 padding;
+};
+
 struct PatchTess
 {
     float EdgeTess[3] : SV_TessFactor;
@@ -18,10 +25,10 @@ struct VS_OUTPUT
 PatchTess ConstantHS(InputPatch<VS_OUTPUT, 3> inPatch, uint patchID : SV_PrimitiveID)
 {
     PatchTess outPatch;
-    outPatch.EdgeTess[0] = 1;
-    outPatch.EdgeTess[1] = 1;
-    outPatch.EdgeTess[2] = 1;
-    outPatch.InsideTess = 1;
+    outPatch.EdgeTess[0] = tess;
+    outPatch.EdgeTess[1] = tess;
+    outPatch.EdgeTess[2] = tess;
+    outPatch.InsideTess = tess;
     
     return outPatch;
 }
@@ -36,7 +43,7 @@ struct HS_OUTPUT
 };
 
 [domain("tri")]
-[partitioning("integer")]
+[partitioning("fractional_odd")]
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(3)]
 [patchconstantfunc("ConstantHS")]

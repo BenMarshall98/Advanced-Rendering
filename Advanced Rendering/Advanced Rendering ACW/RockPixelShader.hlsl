@@ -1,3 +1,7 @@
+Texture2D colorTexture : register(t0);
+Texture2D normalTexture : register(t1);
+SamplerState Sampler : register(s0);
+
 struct DS_OUTPUT
 {
     float4 Pos : SV_POSITION;
@@ -19,7 +23,7 @@ PS_OUTPUT main(DS_OUTPUT input)
 {
     PS_OUTPUT output = (PS_OUTPUT) 0;
     
-    output.color = float4(input.FragmentPos, 1.0f);
+    output.color = float4(normalTexture.Sample(Sampler, input.TexCoord).xyz, 1.0f);
     output.pos = input.Pos;
     
     return output;

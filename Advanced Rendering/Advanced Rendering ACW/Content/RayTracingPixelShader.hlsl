@@ -8,6 +8,7 @@
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
 {
     matrix model;
+    matrix inverseModel;
     matrix view;
     matrix projection;
     float4 eyePosition;
@@ -23,6 +24,12 @@ cbuffer RayConstantBuffer : register(b1)
     float height;
     float2 padding;
 };
+
+cbuffer LightConstantBuffer : register(b2)
+{
+    float4 lightColor;
+    float4 lightPos;
+}
 
 // Per-pixel color data passed through the pixel shader.
 struct PixelShaderInput
@@ -78,10 +85,6 @@ struct Quad
     float4 color;
     float Kd, ks, kr, shininess;
 };
-
-static float4 lightColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
-static float3 lightPos = float3(0.0f, 5.0f, 0.0f);
-static float4 backgroundColor = float4(0.1f, 0.2f, 0.3f, 1.0f);
 
 static float4 sphereColor_1 = float4(1.0f, 0.0f, 0.0f, 1.0f);
 static float4 sphereColor_2 = float4(0.0f, 1.0f, 0.0f, 1.0f);

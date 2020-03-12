@@ -239,5 +239,8 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="rock.sim" />
+    <CopyFileToFolders Include="Displacement.DDS" />
+    <CopyFileToFolders Include="Normal map.DDS" />
+    <CopyFileToFolders Include="Texture.DDS" />
   </ItemGroup>
 </Project>
