@@ -1,3 +1,6 @@
+Texture2D colorTexture : register(t0);
+SamplerState Sampler : register(s0);
+
 struct PixelShaderInput
 {
     float4 pos : SV_Position;
@@ -14,7 +17,12 @@ PixelShaderOutput main(PixelShaderInput input)
 {
     PixelShaderOutput output = (PixelShaderOutput) 0;
     
-    output.color = float4(input.uv, 0.0f, 1.0f);
+    output.color = colorTexture.Sample(Sampler, input.uv);
+    
+    if (output.color.a < 0.1f)
+    {
+        discard;
+    }
     output.pos = input.pos;
     
     return output;

@@ -68,7 +68,7 @@ DS_OUTPUT main(PatchTess patch, float3 uvw : SV_DomainLocation, const OutputPatc
     //FragmentPosition
     output.Pos = mul(float4(pos, 1.0f), model);
     
-    output.Pos.xyz += normalize(normal) * tempHeight;
+    output.Pos.xyz += normalize(mul(float4(normalize(normal), 1.0f), inverseModel).xyz) * tempHeight;
     
     output.FragmentPos = output.Pos.xyz;
     

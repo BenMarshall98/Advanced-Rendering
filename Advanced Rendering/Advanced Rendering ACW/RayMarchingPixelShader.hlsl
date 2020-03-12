@@ -160,7 +160,7 @@ float4 Lighting(Ray ray, Object obj, float depth)
 	float3 hitPos = ray.o + depth * ray.d;
 	float3 normal = Normal(hitPos);
 	
-	float3 lightDir = normalize(lightPos - hitPos);
+	float3 lightDir = normalize(lightPos.xyz - hitPos);
     
     float4 color = obj.color;
     

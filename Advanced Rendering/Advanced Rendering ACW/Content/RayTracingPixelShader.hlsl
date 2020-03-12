@@ -547,20 +547,20 @@ float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor,
 
 float4 SphereShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lightIntensity)
 {
-    float3 lightDir = normalize(lightPos - hitPos);
+    float3 lightDir = normalize(lightPos.xyz - hitPos);
     
     float4 diff = sphereObjects[hitobj].color * sphereObjects[hitobj].Kd;
     float4 spec = sphereObjects[hitobj].color * sphereObjects[hitobj].ks;
     float4 amb = sphereObjects[hitobj].color * 0.1f;
     
-    float shadow = 1.0f - Shadow(hitPos, lightPos);
+    float shadow = 1.0f - Shadow(hitPos, lightPos.xyz);
     
     return lightColor * lightIntensity * ((shadow * Phong(normal, lightDir, viewDir, sphereObjects[hitobj].shininess, diff, spec)) + amb);
 }
 
 float4 PlaneShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lightIntensity)
 {
-    float3 lightDir = normalize(lightPos - hitPos);
+    float3 lightDir = normalize(lightPos.xyz - hitPos);
     
     float4 color = planeObjects[hitobj].color;
     
@@ -577,14 +577,14 @@ float4 PlaneShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, floa
     float4 spec = color * planeObjects[hitobj].ks;
     float4 amb = color * 0.1f;
     
-    float shadow = 1.0f - Shadow(hitPos, lightPos);
+    float shadow = 1.0f - Shadow(hitPos, lightPos.xyz);
     
     return lightColor * lightIntensity * ((shadow * Phong(normal, lightDir, viewDir, planeObjects[hitobj].shininess, diff, spec)) + amb);
 }
 
 float4 QuadShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lightIntensity)
 {
-    float3 lightDir = normalize(lightPos - hitPos);
+    float3 lightDir = normalize(lightPos.xyz - hitPos);
     
     float4 color = quadObjects[hitobj].color;
             
@@ -609,7 +609,7 @@ float4 QuadShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float
     float4 spec = color * quadObjects[hitobj].ks;
     float4 amb = color * 0.1f;
     
-    float shadow = 1.0f - Shadow(hitPos, lightPos);
+    float shadow = 1.0f - Shadow(hitPos, lightPos.xyz);
     
     return lightColor * lightIntensity * ((shadow * Phong(normal, lightDir, viewDir, quadObjects[hitobj].shininess, diff, spec)) + amb);
 }
@@ -617,7 +617,7 @@ float4 QuadShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float
 
 float4 TriangleShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lightIntensity)
 {
-    float3 lightDir = normalize(lightPos - hitPos);
+    float3 lightDir = normalize(lightPos.xyz - hitPos);
     
     float4 color = triangleObjects[hitobj].color;
     
@@ -625,7 +625,7 @@ float4 TriangleShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, f
     float4 spec = color * triangleObjects[hitobj].ks;
     float4 amb = color * 0.1f;
     
-    float shadow = 1.0f - Shadow(hitPos, lightPos);
+    float shadow = 1.0f - Shadow(hitPos, lightPos.xyz);
     
     return lightColor * lightIntensity * ((shadow * Phong(normal, lightDir, viewDir, triangleObjects[hitobj].shininess, diff, spec)) + amb);
 }

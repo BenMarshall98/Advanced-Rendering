@@ -64,6 +64,7 @@ namespace Advanced_Rendering
 		std::unique_ptr<ConstantBuffer<ModelViewProjectionConstantBuffer>> mConstantBuffer;
 		std::unique_ptr<ConstantBuffer<RayConstantBuffer>> mRayConstantBuffer;
 		std::unique_ptr<ConstantBuffer<TessConstantBuffer>> mTessConstantBuffer;
+		std::unique_ptr<ConstantBuffer<LightConstantBuffer>> mLightConstantBuffer;
 
 		std::unique_ptr<VertexShader> mParametricVertexShader;
 		std::unique_ptr<HullShader> mParametricHullShader;
@@ -87,6 +88,7 @@ namespace Advanced_Rendering
 		std::unique_ptr<Texture> mRockColorTexture;
 		std::unique_ptr<Texture> mRockDisplacementTexture;
 		std::unique_ptr<Texture> mRockNormalTexture;
+		std::unique_ptr<Texture> mSoldierTexture;
 
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSampler;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_normalRasterizerState;
@@ -96,6 +98,7 @@ namespace Advanced_Rendering
 		ModelViewProjectionConstantBuffer	m_constantBufferData;
 		RayConstantBuffer m_rayConstantBufferData;
 		TessConstantBuffer m_tessConstantBufferData;
+		LightConstantBuffer m_lightConstantBufferData;
 
 		// Variables used with the rendering loop.
 		bool	m_loadingComplete;

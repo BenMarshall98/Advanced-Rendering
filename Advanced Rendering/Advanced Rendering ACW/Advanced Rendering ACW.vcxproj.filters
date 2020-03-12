@@ -178,12 +178,14 @@
     <Image Include="Rock\Textures\Texture.jpg">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Soldier.DDS" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Advanced Rendering ACW_TemporaryKey.pfx" />
+    <None Include="vase.cur" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\RayTracingPixelShader.hlsl">
