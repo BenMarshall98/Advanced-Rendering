@@ -16,6 +16,7 @@
 #include "PointModel.h"
 #include "TessModel.h"
 #include "Texture.h"
+#include "SplineModel.h"
 
 namespace Advanced_Rendering
 {
@@ -61,6 +62,7 @@ namespace Advanced_Rendering
 		std::unique_ptr<Model> mModel;
 		std::unique_ptr<PointModel> mPointModel;
 		std::unique_ptr<TessModel> mTessModel;
+		std::unique_ptr<SplineModel> mSplineModel;
 		std::unique_ptr<ConstantBuffer<ModelViewProjectionConstantBuffer>> mConstantBuffer;
 		std::unique_ptr<ConstantBuffer<RayConstantBuffer>> mRayConstantBuffer;
 		std::unique_ptr<ConstantBuffer<TessConstantBuffer>> mTessConstantBuffer;
@@ -78,6 +80,11 @@ namespace Advanced_Rendering
 		std::unique_ptr<HullShader> mRockViewHullShader;
 		std::unique_ptr<DomainShader> mRockDomainShader;
 		std::unique_ptr<FragmentShader> mRockFragmentShader;
+
+		std::unique_ptr<VertexShader> mSplineVertexShader;
+		std::unique_ptr<HullShader> mSplineHullShader;
+		std::unique_ptr<DomainShader> mSplineDomainShader;
+		std::unique_ptr<FragmentShader> mSplineFragmentShader;
 
 		std::unique_ptr<VertexShader> mBillboardVertexShader;
 		std::unique_ptr<GeometryShader> mBillboardGeometryShader;

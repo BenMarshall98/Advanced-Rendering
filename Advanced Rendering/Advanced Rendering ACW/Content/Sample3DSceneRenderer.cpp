@@ -188,62 +188,62 @@ void Sample3DSceneRenderer::Render()
 		mParametricHullShader->UseProgram(m_deviceResources);
 		mParametricFragmentShader->UseProgram(m_deviceResources);
 
-		//Sphere
-		{
-			mParametricSphereDomainShader->UseProgram(m_deviceResources);
-			
-			DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 10.0f)));
-			DirectX::XMStoreFloat4x4(&m_constantBufferData.inverseModel, DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0.0f, 5.0f, 10.0f)));
+		////Sphere
+		//{
+		//	mParametricSphereDomainShader->UseProgram(m_deviceResources);
+		//	
+		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 10.0f)));
+		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.inverseModel, DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0.0f, 5.0f, 10.0f)));
 
-			mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
-			mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
-			mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
-			mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
-			mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
+		//	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
-			context->IASetInputLayout(nullptr);
-			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+		//	context->IASetInputLayout(nullptr);
+		//	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 
-			context->Draw(4, 0);
-		}
+		//	context->Draw(4, 0);
+		//}
 
-		//Elipsoid
-		{
-			mParametricElipsoidDomainShader->UseProgram(m_deviceResources);
-			
-			DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 20.0f)));
-			DirectX::XMStoreFloat4x4(&m_constantBufferData.inverseModel, DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0.0f, 5.0f, 20.0f)));
+		////Elipsoid
+		//{
+		//	mParametricElipsoidDomainShader->UseProgram(m_deviceResources);
+		//	
+		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 20.0f)));
+		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.inverseModel, DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0.0f, 5.0f, 20.0f)));
 
-			mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
-			mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
-			mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
-			mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
-			mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
+		//	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
-			context->IASetInputLayout(nullptr);
-			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+		//	context->IASetInputLayout(nullptr);
+		//	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 
-			context->Draw(4, 0);
-		}
+		//	context->Draw(4, 0);
+		//}
 
-		//Torus
-		{
-			mParametricTorusDomainShader->UseProgram(m_deviceResources);
+		////Torus
+		//{
+		//	mParametricTorusDomainShader->UseProgram(m_deviceResources);
 
-			DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 30.0f)));
-			DirectX::XMStoreFloat4x4(&m_constantBufferData.inverseModel, DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0.0f, 5.0f, 30.0f)));
+		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 30.0f)));
+		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.inverseModel, DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0.0f, 5.0f, 30.0f)));
 
-			mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
-			mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
-			mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
-			mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
-			mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
+		//	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
+		//	mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
 
-			context->IASetInputLayout(nullptr);
-			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+		//	context->IASetInputLayout(nullptr);
+		//	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 
-			context->Draw(4, 0);
-		}
+		//	context->Draw(4, 0);
+		//}
 
 		if (Main::wireframe)
 		{
@@ -297,6 +297,28 @@ void Sample3DSceneRenderer::Render()
 		mRockDisplacementTexture->ReleaseDomainTexture(m_deviceResources, 0);
 		mRockColorTexture->ReleaseTexture(m_deviceResources, 0);
 		mRockNormalTexture->ReleaseTexture(m_deviceResources, 1);
+
+		
+
+		//Vase
+		{
+			DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 15.0f)));
+			DirectX::XMStoreFloat4x4(&m_constantBufferData.inverseModel, DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0.0f, 5.0f, 15.0f)));
+
+			mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
+			mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UseHSBuffer(m_deviceResources, 0);
+			mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
+
+			mSplineVertexShader->UseProgram(m_deviceResources);
+			mSplineHullShader->UseProgram(m_deviceResources);
+			mSplineDomainShader->UseProgram(m_deviceResources);
+			mSplineFragmentShader->UseProgram(m_deviceResources);
+
+			mSplineModel->UseModel(m_deviceResources);
+		}
 
 		context->RSSetState(m_normalRasterizerState.Get());
 	
@@ -422,6 +444,21 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mRockDomainShader->Load(m_deviceResources);
 	mRockFragmentShader->Load(m_deviceResources);
 
+	std::vector<D3D11_INPUT_ELEMENT_DESC> splineInputLayout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	mSplineVertexShader = std::make_unique<VertexShader>(L"SplineVertexShader.cso", splineInputLayout);
+	mSplineHullShader = std::make_unique<HullShader>(L"SplineHullShader.cso");
+	mSplineDomainShader = std::make_unique<DomainShader>(L"SplineDomainShader.cso");
+	mSplineFragmentShader = std::make_unique<FragmentShader>(L"SplinePixelShader.cso");
+
+	mSplineVertexShader->Load(m_deviceResources);
+	mSplineHullShader->Load(m_deviceResources);
+	mSplineDomainShader->Load(m_deviceResources);
+	mSplineFragmentShader->Load(m_deviceResources);
+
 	mBillboardVertexShader = std::make_unique<VertexShader>(L"BillboardVertexShader.cso", normalInputLayout);
 	mBillboardGeometryShader = std::make_unique<GeometryShader>(L"BillboardGeometryShader.cso");
 	mBillboardFragmentShader = std::make_unique<FragmentShader>(L"BillboardPixelShader.cso");
@@ -511,6 +548,9 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 	mTessModel = std::make_unique<TessModel>("rock.sim");
 	mTessModel->Load(m_deviceResources);
+
+	mSplineModel = std::make_unique<SplineModel>("vase.cur");
+	mSplineModel->Load(m_deviceResources);
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof samplerDesc);
