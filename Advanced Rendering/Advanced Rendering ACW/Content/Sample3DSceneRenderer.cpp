@@ -141,7 +141,7 @@ void Sample3DSceneRenderer::Render()
 	DirectX::XMFLOAT3 position;
 	mCamera->getViewPosition(position);
 
-	m_lightConstantBufferData.lightPos = DirectX::XMFLOAT4(position.x, position.y + 100.0f, position.z, 1.0f);
+	m_lightConstantBufferData.lightPos = DirectX::XMFLOAT4(position.x, position.y + 5.0f, position.z, 1.0f);
 	m_lightConstantBufferData.lightColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	mLightConstantBuffer->UpdateBuffer(m_deviceResources, m_lightConstantBufferData);

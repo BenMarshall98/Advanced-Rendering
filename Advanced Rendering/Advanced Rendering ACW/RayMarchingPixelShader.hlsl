@@ -1,4 +1,4 @@
-#define EPSILON 0.005f
+#define EPSILON 0.01f
 #define MAX_MARCHING_STEPS 100
 
 // A constant buffer that stores the three basic column-major matrices for composing geometry.
@@ -90,6 +90,15 @@ PixelShaderOutput RayMarching(Ray eyeray);
 float4 Lighting(Ray ray, Object Object, float depth);
 float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor, float4 specularColor);
 float3 Normal(float3 position);
+
+//Blending
+float unionBlend(float pShape1, float pShape2);
+float intersection(float pShape1, float pShape2);
+float subtract(float pShape1, float pShape2);
+float softMax(float x, float y, float a);
+float softMin2(float x, float y, float a);
+float softMax2(float x, float y, float a);
+float softAbs2(float x, float a);
 
 //Perlin Noise
 float random(float2 st);
@@ -200,38 +209,59 @@ float3 Normal(float3 position)
 Object Scene(float3 position)
 {
 	Object obj = (Object) 0;
-	obj.dist = sdSphere(position - float3(5.0f, 0.0f, 0.0f), 1.0f);
-	obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+    obj.dist = farPlane;
+	obj.color = float4(0.0f, 0.0f, 0.0f, 0.0f);
     obj.objectType = 0;
     
     const int numberOfColumns = 10;
     const float3 columnPositions[numberOfColumns] =
     {
-        float3(-5.0f, 0.0f, 5.0f),
-        float3(5.0f, 0.0f, 15.0f),
-        float3(-5.0f, 0.0f, 25.0f),
-        float3(5.0f, 0.0f, 35.0f),
-        float3(-5.0f, 0.0f, 45.0f),
-        float3(5.0f, 0.0f, 55.0f),
-        float3(-5.0f, 0.0f, 65.0f),
-        float3(5.0f, 0.0f, 75.0f),
-        float3(-5.0f, 0.0f, 85.0f),
-        float3(5.0f, 0.0f, 95.0f)
+        float3(-7.5f, 0.0f, 5.0f),
+        float3( 7.5f, 0.0f, 5.0f),
+        float3(-7.5f, 0.0f, 25.0f),
+        float3(7.5f, 0.0f, 25.0f),
+        float3(-7.5f, 0.0f, 45.0f),
+        float3(7.5f, 0.0f, 45.0f),
+        float3(-7.5f, 0.0f, 65.0f),
+        float3(7.5f, 0.0f, 65.0f),
+        float3(-7.5f, 0.0f, 85.0f),
+        float3(7.5f, 0.0f, 85.0f)
     };
     
-    for (int i = 0; i < numberOfColumns; i++)
     {
-        float tempDist = sdBox((position - columnPositions[i]) + float3(0.0f, -5.0f, 0.0f), float3(1.5f, 5.5f, 1.5f));
+        float temp = sdBox((position - float3(0.0f, 5.0f, 50.f)), float3(10.0f, 5.0f, 50.0f));
         
-        if (tempDist < obj.dist)
+        if (temp < obj.dist)
         {
-            tempDist = sdCappedCylinder(position, columnPositions[i], columnPositions[i] + float3(0.0f, 10.0f, 0.0f), 0.5f);
-        }
+    
+            for (int i = 0; i < numberOfColumns; i++)
+            {
+                float tempDist = sdBox((position - columnPositions[i]) + float3(0.0f, -5.0f, 0.0f), float3(1.0f, 5.0f, 1.0f));
         
-        if (tempDist < obj.dist)
-        {
-            obj.dist = tempDist;
-            obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
+                if (tempDist < obj.dist)
+                {
+                    float boxBottom = sdRoundBox(position - (columnPositions[i] + float3(0.0f, 0.25f, 0.0f)), float3(1.0f, 0.25f, 1.0f), 0.1f);
+                    float boxTop = sdRoundBox(position - (columnPositions[i] + float3(0.0f, 9.75f, 0.0f)), float3(1.0f, 0.25f, 1.0f), 0.1f);
+                    float cylinder = sdCappedCylinder(position, (columnPositions[i] + float3(0.0f, 0.5f, 0.0f)), columnPositions[i] + float3(0.0f, 9.5f, 0.0f), 0.75f);
+            
+                    tempDist = softMin2(boxBottom, cylinder, 1.0f);
+                    tempDist = softMin2(tempDist, boxTop, 1.0f);
+                    
+                    for (int j = 0; j < 12; j++)
+                    {
+                        float cutout = sdCappedCylinder(position, (columnPositions[i] + float3(sin(radians(30 * j)) * 0.75f, 1.0f, cos(radians(30 * j)) * 0.75f)), (columnPositions[i] + float3(sin(radians(30 * j)) * 0.75f, 9.0f, cos(radians(30 * j)) * 0.75f)), 0.05f);
+
+                        tempDist = softMax2(tempDist, -cutout, 0.1f);
+                    }
+
+                }
+        
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
+                }
+            }
         }
     }
     
@@ -566,6 +596,49 @@ float3 sdTerrainColor(float3 position)
     }
     
     return float3(0.0f, 1.0f, 0.0f);
+}
+
+float unionBlend(float pShape1, float pShape2)
+{
+    return min(pShape1, pShape2);
+}
+
+float intersection(float pShape1, float pShape2)
+{
+    return max(pShape1, pShape2);
+}
+
+float subtract(float pShape1, float pShape2)
+{
+    return max(pShape1, -pShape2);
+}
+
+float softMax(float x, float y, float a)
+{
+    return log(exp(a * x) + exp(a * y)) / a;
+}
+
+float softMin2(float x, float y, float a)
+{
+    return -0.5f * (-x - y + softAbs2(x - y, a));
+}
+
+float softMax2(float x, float y, float a)
+{
+    return 0.5f * (x + y + softAbs2(x - y, a));
+}
+
+float softAbs2(float x, float a)
+{
+    float xx = 2.0 * x / a;
+    float abs2 = abs(xx);
+    
+    if (abs2 < 2.0)
+    {
+        abs2 = 0.5 * xx * xx * (1.0 - abs2 / 6) + 2.0 / 3.0;
+    }
+    
+    return abs2 * a / 2.0;
 }
 
 //Distance Functions From https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
