@@ -18,6 +18,7 @@ struct HS_Factors
 struct VertexShaderInput
 {
     float4 pos : SV_POSITION;
+    float3 bitangent : BITANGENT;
 };
 
 // Per-pixel color data passed through the pixel shader.
@@ -27,25 +28,27 @@ struct VertexShaderOutput
     float2 uv : COLOR0;
 };
 
+float3 HermiteCurve(float3 p1, float3 t1, float3 p2, float3 t2, float w);
+float3 RotateY(float3 pos, float angle);
+
 [domain("quad")]
-VertexShaderOutput main(HS_Factors input, float2 UV : SV_DomainLocation, const OutputPatch<VertexShaderInput, 16> patch)
+VertexShaderOutput main(HS_Factors input, float2 UV : SV_DomainLocation, const OutputPatch<VertexShaderInput, 4> patch)
 {
     VertexShaderOutput output = (VertexShaderOutput) 0;
     
+    const float PI = 3.14159265359;
+    
     int x = floor(UV.x * 3);
-    int y = floor(UV.y * 3);
     
-    int index1 = x + 4 * y;
-    int index2 = (x + 1) + 4 * y;
-    int index3 = x + 4 * (y + 1);
-    int index4 = (x + 1) + 4 * (y + 1);
+    int index1 = x;
+    int index2 = (x + 1);
     
-    float2 weight = frac(UV * 3);
+    float2 weight = float2(frac(UV.x * 3), UV.y);
     
-    float3 pos1 = lerp(patch[index1].pos.xyz, patch[index2].pos.xyz, weight.x);
-    float3 pos2 = lerp(patch[index3].pos.xyz, patch[index4].pos.xyz, weight.x);
+    float3 pos = HermiteCurve(patch[index1].pos.xyz, patch[index1].bitangent, patch[index2].pos.xyz, patch[index2].bitangent, weight.x);
+    //float3 pos = lerp(patch[index1].pos.xyz, patch[index2].pos.xyz, weight.x);
     
-    float3 pos = lerp(pos1, pos2, weight.y);
+    pos = RotateY(pos, weight.y * PI * 2.0f);
     
     output.pos = float4(pos, 1.0f);
     
@@ -56,4 +59,19 @@ VertexShaderOutput main(HS_Factors input, float2 UV : SV_DomainLocation, const O
     output.uv = UV;
     
     return output;
+}
+
+float3 HermiteCurve(float3 p1, float3 t1, float3 p2, float3 t2, float w)
+{
+    float b0 = 2 * pow(w, 3) - 3 * pow(w, 2) + 1;
+    float b1 = pow(w, 3) - 2 * pow(w, 2) + w;
+    float b2 = -2 * pow(w, 3) + 3 * pow(w, 2);
+    float b3 = pow(w, 3) - pow(w, 2);
+    
+    return p1 * b0 + t1 * b1 + b2 * p2 + b3 * t2;
+}
+
+float3 RotateY(float3 pos, float angle)
+{
+    return mul(pos, float3x3(cos(angle), 0, sin(angle), 0, 1, 0, -sin(angle), 0, cos(angle)));
 }

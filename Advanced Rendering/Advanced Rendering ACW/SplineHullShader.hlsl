@@ -2,6 +2,7 @@
 struct VertexShaderOutput
 {
     float4 pos : SV_POSITION;
+    float3 bitangent : BITANGENT;
 };
 
 struct HS_Factors
@@ -10,7 +11,7 @@ struct HS_Factors
     float Inside[2] : SV_InsideTessFactor;
 };
 
-HS_Factors ConstantHS(InputPatch<VertexShaderOutput, 16> ip)
+HS_Factors ConstantHS(InputPatch<VertexShaderOutput, 4> ip)
 {
     HS_Factors output = (HS_Factors) 0;
     
@@ -28,14 +29,15 @@ HS_Factors ConstantHS(InputPatch<VertexShaderOutput, 16> ip)
 [domain("quad")]
 [partitioning("integer")]
 [outputtopology("triangle_cw")]
-[outputcontrolpoints(16)]
+[outputcontrolpoints(4)]
 [patchconstantfunc("ConstantHS")]
 
-VertexShaderOutput main(InputPatch<VertexShaderOutput, 16> patch, uint i : SV_OutputControlPointID)
+VertexShaderOutput main(InputPatch<VertexShaderOutput, 4> patch, uint i : SV_OutputControlPointID)
 {
     VertexShaderOutput output = (VertexShaderOutput) 0;
     
     output.pos = patch[i].pos;
+    output.bitangent = patch[i].bitangent;
     
     return output;
 }

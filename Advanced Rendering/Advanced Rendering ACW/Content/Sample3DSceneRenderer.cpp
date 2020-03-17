@@ -446,7 +446,8 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> splineInputLayout =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	mSplineVertexShader = std::make_unique<VertexShader>(L"SplineVertexShader.cso", splineInputLayout);

@@ -13,14 +13,16 @@ SplineModel::SplineModel(const std::string & pFilename)
 	int size;
 	myfile >> size;
 
-	size *= 16;
+	size *= 4;
 
 	mPositions.resize(size);
+	mBitangents.resize(size);
 	mIndices.resize(size);
 
 	for (int i = 0; i < mPositions.size(); i++)
 	{
 		myfile >> mPositions[i].x >> mPositions[i].y >> mPositions[i].z;
+		myfile >> mBitangents[i].x >> mBitangents[i].y >> mBitangents[i].z;
 
 		mIndices[i] = i;
 	}
@@ -52,6 +54,12 @@ void SplineModel::Load(std::shared_ptr<DX::DeviceResources> pDeviceResources)
 	initData.pSysMem = mPositions.data();
 
 	device->CreateBuffer(&bufferDesc, &initData, &mPositionBuffer);
+	
+	//Create BiTangent Buffer
+	bufferDesc.ByteWidth = sizeof(DirectX::XMFLOAT3) * mBitangents.size();
+	initData.pSysMem = mBitangents.data();
+
+	device->CreateBuffer(&bufferDesc, &initData, &mBiTangentBuffer);
 
 	//Create Index Buffer
 	bufferDesc.ByteWidth = sizeof(unsigned int) * mIndices.size();
@@ -66,6 +74,7 @@ void SplineModel::Load(std::shared_ptr<DX::DeviceResources> pDeviceResources)
 void SplineModel::Reset()
 {
 	mPositionBuffer.Reset();
+	mBiTangentBuffer.Reset();
 	mIndexBuffer.Reset();
 }
 
@@ -73,21 +82,24 @@ void SplineModel::UseModel(std::shared_ptr<DX::DeviceResources> pDeviceResources
 {
 	auto deviceContext = pDeviceResources->GetD3DDeviceContext();
 
-	const auto numberBuffers = 1;
+	const auto numberBuffers = 2;
 
 	std::vector<ID3D11Buffer *> bufferArray;
 	bufferArray.emplace_back(mPositionBuffer.Get());
+	bufferArray.emplace_back(mBiTangentBuffer.Get());
 
 	std::vector<UINT> strideArray;
 	strideArray.emplace_back(sizeof(DirectX::XMFLOAT3));
+	strideArray.emplace_back(sizeof(DirectX::XMFLOAT3));
 
 	std::vector<UINT> offsetArray;
+	offsetArray.emplace_back(0);
 	offsetArray.emplace_back(0);
 
 	deviceContext->IASetVertexBuffers(0, numberBuffers, bufferArray.data(), strideArray.data(), offsetArray.data());
 	deviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 
 	deviceContext->DrawIndexed(mIndexCount, 0, 0);
 }

@@ -11,9 +11,11 @@ namespace Advanced_Rendering
 	class SplineModel
 	{
 		std::vector<DirectX::XMFLOAT3> mPositions;
+		std::vector<DirectX::XMFLOAT3> mBitangents;
 		std::vector<unsigned int> mIndices;
 
 		Microsoft::WRL::ComPtr<ID3D11Buffer> mPositionBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> mBiTangentBuffer;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> mIndexBuffer;
 		unsigned int mIndexCount;
 
