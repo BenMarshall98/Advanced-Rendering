@@ -1,5 +1,5 @@
-#define EPSILON 0.01f
-#define MAX_MARCHING_STEPS 100
+#define EPSILON 0.005f
+#define MAX_MARCHING_STEPS 300
 
 // A constant buffer that stores the three basic column-major matrices for composing geometry.
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
@@ -59,7 +59,7 @@ float sdSphere(float3 position, float radius);
 float sdBox(float3 position, float3 size);
 float sdRoundBox(float3 position, float3 size, float radius);
 float sdPlane(float3 position, float4 normal);
-float sdHexPrism(float3 position, float3 size);
+float sdHexPrism(float3 position, float2 size);
 float sdTriPrism(float3 position, float2 size);
 float sdCapsule(float3 position, float3 startPoint, float3 endPoint, float radius);
 float sdVerticalCapsule(float3 position, float height, float radius);
@@ -213,55 +213,136 @@ Object Scene(float3 position)
 	obj.color = float4(0.0f, 0.0f, 0.0f, 0.0f);
     obj.objectType = 0;
     
-    const int numberOfColumns = 10;
-    const float3 columnPositions[numberOfColumns] =
-    {
-        float3(-7.5f, 0.0f, 5.0f),
-        float3( 7.5f, 0.0f, 5.0f),
-        float3(-7.5f, 0.0f, 25.0f),
-        float3(7.5f, 0.0f, 25.0f),
-        float3(-7.5f, 0.0f, 45.0f),
-        float3(7.5f, 0.0f, 45.0f),
-        float3(-7.5f, 0.0f, 65.0f),
-        float3(7.5f, 0.0f, 65.0f),
-        float3(-7.5f, 0.0f, 85.0f),
-        float3(7.5f, 0.0f, 85.0f)
-    };
+    float temp = sdBox((position - float3(0.0f, 0.0f, 50.f)), float3(160.5f, 1000.0f, 70.5f));
     
+    if (-temp < obj.dist)
     {
-        float temp = sdBox((position - float3(0.0f, 5.0f, 50.f)), float3(10.0f, 5.0f, 50.0f));
+        obj.dist = -temp;
         
-        if (temp < obj.dist)
+        if ((position.z < -20.0f || position.z > 120.0f) || abs(position.x) > 160.0f)
         {
-    
-            for (int i = 0; i < numberOfColumns; i++)
-            {
-                float tempDist = sdBox((position - columnPositions[i]) + float3(0.0f, -5.0f, 0.0f), float3(1.0f, 5.0f, 1.0f));
-        
-                if (tempDist < obj.dist)
-                {
-                    float boxBottom = sdRoundBox(position - (columnPositions[i] + float3(0.0f, 0.25f, 0.0f)), float3(1.0f, 0.25f, 1.0f), 0.1f);
-                    float boxTop = sdRoundBox(position - (columnPositions[i] + float3(0.0f, 9.75f, 0.0f)), float3(1.0f, 0.25f, 1.0f), 0.1f);
-                    float cylinder = sdCappedCylinder(position, (columnPositions[i] + float3(0.0f, 0.5f, 0.0f)), columnPositions[i] + float3(0.0f, 9.5f, 0.0f), 0.75f);
+            float3 pos;
+            pos.y = position.y - 5.0f;
             
-                    tempDist = softMin2(boxBottom, cylinder, 1.0f);
-                    tempDist = softMin2(tempDist, boxTop, 1.0f);
-                    
-                    for (int j = 0; j < 12; j++)
-                    {
-                        float cutout = sdCappedCylinder(position, (columnPositions[i] + float3(sin(radians(30 * j)) * 0.75f, 1.0f, cos(radians(30 * j)) * 0.75f)), (columnPositions[i] + float3(sin(radians(30 * j)) * 0.75f, 9.0f, cos(radians(30 * j)) * 0.75f)), 0.05f);
+			//Row One
+			{
+				//Torus
+				pos.xz = fmod(abs(position.xz), float2(30.0f, 30.0f)) - float2(7.5f, 7.5f);
+				obj.dist = sdTorus(pos, float2(1.0f, 0.1f));
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
 
-                        tempDist = softMax2(tempDist, -cutout, 0.1f);
-                    }
+				//Sphere
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdSphere(pos, 1.0f));
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
 
-                }
+				//Pyramid
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdPyramid(0.5f * pos, 1.0f) * 2.0f);
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				//Octahedron
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdOctahedron(pos, 1.0f));
+			}
+
+			//Row Two
+			{
+				//Torus
+				pos.xz = fmod(abs(position.xz), float2(30.0f, 30.0f)) - float2(12.5f, 7.5f);
+				obj.dist = unionBlend(obj.dist, sdTriPrism(pos, float2(1.0f, 1.0f)));
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				//Sphere
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdSphere(pos, 1.0f));
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				//Pyramid
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdPyramid(0.5f * pos, 1.0f) * 2.0f);
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				//Octahedron
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdOctahedron(pos, 1.0f));
+			}
+
+			//Row Three
+			{
+				//Torus
+				pos.xz = fmod(abs(position.xz), float2(30.0f, 30.0f)) - float2(17.5f, 7.5f);
+				obj.dist = unionBlend(obj.dist, sdTorus(pos, float2(1.0f, 0.1f)));
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				//Sphere
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdSphere(pos, 1.0f));
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				//Pyramid
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdPyramid(0.5f * pos, 1.0f) * 2.0f);
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				//Octahedron
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdOctahedron(pos, 1.0f));
+			}
+
+			//Row Four
+			{
+				//Torus
+				pos.xz = fmod(abs(position.xz), float2(30.0f, 30.0f)) - float2(22.5f, 7.5f);
+				obj.dist = unionBlend(obj.dist, sdTorus(pos, float2(1.0f, 0.1f)));
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				//Sphere
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdSphere(pos, 1.0f));
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				//Pyramid
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdPyramid(0.5f * pos, 1.0f) * 2.0f);
+				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				//Octahedron
+				pos.xz -= float2(0.0f, 5.0f);
+				obj.dist = unionBlend(obj.dist, sdOctahedron(pos, 1.0f));
+			}
+        }
+    }
+    
+    temp = sdBox((position - float3(0.0f, 5.0f, 50.f)), float3(9.5f, 5.0f, 49.5f));
+    
+    if (temp < obj.dist)
+    {
+        obj.dist = temp;
+    
+        if (abs(position.x) < 10.0f && position.z > 0.0f && position.z < 100.f)
+        {
+            float3 pos;
+            pos.xz = fmod(abs(position.xz), float2(10.0f, 10.0f)) - 0.5f * float2(10.0f, 10.0f);
+            pos.y = position.y;
         
-                if (tempDist < obj.dist)
-                {
-                    obj.dist = tempDist;
-                    obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
-                }
+            float boxBottom = sdRoundBox(pos - float3(2.5f, 0.25f, 0.0f), float3(1.0f, 0.25f, 1.0f), 0.1f);
+            float boxTop = sdRoundBox(pos - float3(2.5f, 9.75f, 0.0f), float3(1.0f, 0.25f, 1.0f), 0.1f);
+            float cylinder = sdCappedCylinder(pos, float3(2.5f, 0.5f, 0.0f), float3(2.5f, 9.5f, 0.0f), 0.75f);
+        
+            float tempDist = softMin2(boxBottom, cylinder, 1.0f);
+            tempDist = softMin2(tempDist, boxTop, 1.0f);
+        
+            [unroll]
+            for (int j = 0; j < 12; j++)
+            {
+                float cutout = sdCappedCylinder(pos, float3(sin(radians(30 * j)) * 0.75f + 2.5f, 1.0f, cos(radians(30 * j)) * 0.75f), float3(sin(radians(30 * j)) * 0.75f + 2.5f, 9.0f, cos(radians(30 * j)) * 0.75f), 0.05f);
+        
+                tempDist = softMax2(tempDist, -cutout, 0.1f);
             }
+       
+            obj.dist = tempDist;
+            obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
         }
     }
     
@@ -275,6 +356,8 @@ Object Scene(float3 position)
             obj.objectType = 1;
         }
     }
+    
+    
 
 	return obj;
 }
