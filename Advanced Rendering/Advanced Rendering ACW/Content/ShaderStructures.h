@@ -43,4 +43,10 @@ namespace Advanced_Rendering
 		DirectX::XMFLOAT4 lightColor;
 		DirectX::XMFLOAT4 lightPos;
 	};
+
+	struct TimeConstantBuffer
+	{
+		float time;
+		DirectX::XMFLOAT3 padding;
+	};
 }

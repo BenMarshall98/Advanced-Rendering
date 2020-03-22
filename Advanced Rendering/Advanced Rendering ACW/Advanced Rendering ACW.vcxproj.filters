@@ -182,12 +182,14 @@
     <Image Include="Rock\Textures\Texture.jpg">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Flag.DDS" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Advanced Rendering ACW_TemporaryKey.pfx" />
+    <None Include="cylinder.sim" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\RayTracingPixelShader.hlsl">
@@ -247,6 +249,8 @@
     <FxCompile Include="SculptureVertexShader.hlsl" />
     <FxCompile Include="SculptureGeometryShader.hlsl" />
     <FxCompile Include="SculpturePixelShader.hlsl" />
+    <FxCompile Include="FlagGeometryShader.hlsl" />
+    <FxCompile Include="PoleGeometryShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="rock.sim" />

@@ -86,6 +86,13 @@ void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 		mCamera->update(m_constantBufferData, timer);
 
 		Rotate(radians);
+
+		TimeConstantBuffer timeBuffer;
+
+		timeBuffer.time = timer.GetTotalSeconds();
+
+		mTimeConstantBuffer->UpdateBuffer(m_deviceResources, timeBuffer);
+		mTimeConstantBuffer->UseGSBuffer(m_deviceResources, 5);
 	}
 }
 
@@ -155,6 +162,8 @@ void Sample3DSceneRenderer::Render()
 
 	mRayConstantBuffer->UpdateBuffer(m_deviceResources, m_rayConstantBufferData);
 	mRayConstantBuffer->UsePSBuffer(m_deviceResources, 1);
+
+	
 
 	//Ray Tracing
 	{
@@ -354,6 +363,23 @@ void Sample3DSceneRenderer::Render()
 			mBillboardFragmentShader->ReleaseProgram(m_deviceResources);
 		}
 
+		//Flags
+		{
+			mBillboardVertexShader->UseProgram(m_deviceResources);
+			mFlagGeometryShader->UseProgram(m_deviceResources);
+			mBillboardFragmentShader->UseProgram(m_deviceResources);
+
+			mFlagTexture->UseTexture(m_deviceResources, 0);
+
+			mFlagModel->UseModel(m_deviceResources);
+
+			mFlagTexture->ReleaseTexture(m_deviceResources, 0);
+
+			mBillboardVertexShader->ReleaseProgram(m_deviceResources);
+			mFlagGeometryShader->ReleaseProgram(m_deviceResources);
+			mBillboardFragmentShader->ReleaseProgram(m_deviceResources);
+		}
+
 		//Billboard Sculpture
 		{
 			mSculptureVertexShader->UseProgram(m_deviceResources);
@@ -370,6 +396,24 @@ void Sample3DSceneRenderer::Render()
 			mSculptureGeometryShader->ReleaseProgram(m_deviceResources);
 			mSculptureFragmentShader->ReleaseProgram(m_deviceResources);
 		}
+
+		//Billboard Sculpture
+		{
+			mSculptureVertexShader->UseProgram(m_deviceResources);
+			mPoleGeometryShader->UseProgram(m_deviceResources);
+			mSculptureFragmentShader->UseProgram(m_deviceResources);
+
+			mMarbleTexture->UseTexture(m_deviceResources, 0);
+
+			mPoleModel->UseModel(m_deviceResources);
+
+			mMarbleTexture->ReleaseTexture(m_deviceResources, 0);
+
+			mSculptureVertexShader->ReleaseProgram(m_deviceResources);
+			mPoleGeometryShader->ReleaseProgram(m_deviceResources);
+			mSculptureFragmentShader->ReleaseProgram(m_deviceResources);
+		}
+
 	
 		mGeometryFramebuffer->ReleaseFramebuffer(m_deviceResources);
 	}
@@ -500,6 +544,9 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mBillboardGeometryShader->Load(m_deviceResources);
 	mBillboardFragmentShader->Load(m_deviceResources);
 
+	mFlagGeometryShader = std::make_unique<GeometryShader>(L"FlagGeometryShader.cso");
+	mFlagGeometryShader->Load(m_deviceResources);
+
 	std::vector<D3D11_INPUT_ELEMENT_DESC> sculptureInputLayout =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -509,10 +556,12 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 	mSculptureVertexShader = std::make_unique<VertexShader>(L"SculptureVertexShader.cso", sculptureInputLayout);
 	mSculptureGeometryShader = std::make_unique<GeometryShader>(L"SculptureGeometryShader.cso");
+	mPoleGeometryShader = std::make_unique<GeometryShader>(L"PoleGeometryShader.cso");
 	mSculptureFragmentShader = std::make_unique<FragmentShader>(L"SculpturePixelShader.cso");
 
 	mSculptureVertexShader->Load(m_deviceResources);
 	mSculptureGeometryShader->Load(m_deviceResources);
+	mPoleGeometryShader->Load(m_deviceResources);
 	mSculptureFragmentShader->Load(m_deviceResources);
 
 	mRayTracingFramebuffer = std::make_unique<Framebuffer>();
@@ -541,6 +590,9 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mLightConstantBuffer = std::make_unique<ConstantBuffer<LightConstantBuffer>>();
 	mLightConstantBuffer->Load(m_deviceResources);
 
+	mTimeConstantBuffer = std::make_unique<ConstantBuffer<TimeConstantBuffer>>();
+	mTimeConstantBuffer->Load(m_deviceResources);
+
 	mRockColorTexture = std::make_unique<Texture>("Texture.DDS");
 	mRockColorTexture->Load(m_deviceResources);
 
@@ -555,6 +607,9 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 	mMarbleTexture = std::make_unique<Texture>("Marble.DDS");
 	mMarbleTexture->Load(m_deviceResources);
+
+	mFlagTexture = std::make_unique<Texture>("Flag.DDS");
+	mFlagTexture->Load(m_deviceResources);
 
 	// Load mesh vertices. Each vertex has a position and a color.
 	static const std::vector<VertexPositionColor> cubeVertices = 
@@ -597,11 +652,28 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mPointModel = std::make_unique<PointModel>(pointVertices, pointIndices);
 	mPointModel->Load(m_deviceResources);
 
+	std::vector<VertexPositionColor> flagVertices;
+	std::vector<unsigned int> flagIndices;
+
+	for (int i = 0; i <= 100; i += 20)
+	{
+		flagVertices.push_back({ XMFLOAT3(20, 5.0f, i), XMFLOAT3(0.0f, 0.0f, 0.0f) });
+		flagVertices.push_back({ XMFLOAT3(-20, 5.0f, i), XMFLOAT3(0.0f, 0.0f, 0.0f) });
+		flagIndices.push_back(flagIndices.size());
+		flagIndices.push_back(flagIndices.size());
+	}
+
+	mFlagModel = std::make_unique<PointModel>(flagVertices, flagIndices);
+	mFlagModel->Load(m_deviceResources);
+
 	mTessModel = std::make_unique<TessModel>("rock.sim");
 	mTessModel->Load(m_deviceResources);
 
 	mSculptureModel = std::make_unique<SculptureModel>("Sculpture.sim");
 	mSculptureModel->Load(m_deviceResources);
+
+	mPoleModel = std::make_unique<SculptureModel>("Cylinder.sim");
+	mPoleModel->Load(m_deviceResources);
 
 	mSplineModel = std::make_unique<SplineModel>("vase.cur");
 	mSplineModel->Load(m_deviceResources);

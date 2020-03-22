@@ -62,13 +62,16 @@ namespace Advanced_Rendering
 
 		std::unique_ptr<Model> mModel;
 		std::unique_ptr<PointModel> mPointModel;
+		std::unique_ptr<PointModel> mFlagModel;
 		std::unique_ptr<TessModel> mTessModel;
 		std::unique_ptr<SculptureModel> mSculptureModel;
+		std::unique_ptr<SculptureModel> mPoleModel;
 		std::unique_ptr<SplineModel> mSplineModel;
 		std::unique_ptr<ConstantBuffer<ModelViewProjectionConstantBuffer>> mConstantBuffer;
 		std::unique_ptr<ConstantBuffer<RayConstantBuffer>> mRayConstantBuffer;
 		std::unique_ptr<ConstantBuffer<TessConstantBuffer>> mTessConstantBuffer;
 		std::unique_ptr<ConstantBuffer<LightConstantBuffer>> mLightConstantBuffer;
+		std::unique_ptr<ConstantBuffer<TimeConstantBuffer>> mTimeConstantBuffer;
 
 		std::unique_ptr<VertexShader> mParametricVertexShader;
 		std::unique_ptr<HullShader> mParametricHullShader;
@@ -92,8 +95,11 @@ namespace Advanced_Rendering
 		std::unique_ptr<GeometryShader> mBillboardGeometryShader;
 		std::unique_ptr<FragmentShader> mBillboardFragmentShader;
 
+		std::unique_ptr<GeometryShader> mFlagGeometryShader;
+
 		std::unique_ptr<VertexShader> mSculptureVertexShader;
 		std::unique_ptr<GeometryShader> mSculptureGeometryShader;
+		std::unique_ptr<GeometryShader> mPoleGeometryShader;
 		std::unique_ptr<FragmentShader> mSculptureFragmentShader;
 
 		std::unique_ptr<Framebuffer> mGeometryFramebuffer;
@@ -103,6 +109,7 @@ namespace Advanced_Rendering
 		std::unique_ptr<Texture> mRockNormalTexture;
 		std::unique_ptr<Texture> mSoldierTexture;
 		std::unique_ptr<Texture> mMarbleTexture;
+		std::unique_ptr<Texture> mFlagTexture;
 
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSampler;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_normalRasterizerState;
