@@ -1,7 +1,6 @@
 #define SOBJECTS 3
 #define TOBJECTS 4
 #define QOBJECTS 6
-#define POBJECTS 1
 #define EPSILON 0.005f
 
 // A constant buffer that stores the three basic column-major matrices for composing geometry.
@@ -93,14 +92,9 @@ static float shininess = 40.0f;
 
 static Sphere sphereObjects[SOBJECTS] =
 {
-    { 2.0f, -2.0f, 2.0f, 1.0f, sphereColor_1, 0.3f, 0.5f, 0.4f, shininess },
-    { 2.0f, 0.0f, -2.0f, 0.5f, sphereColor_2, 0.5f, 0.7f, 0.3f, shininess },
-    { -2.0f, 2.0f, 2.0f, 0.25f, sphereColor_3, 0.5f, 0.3f, 0.2f, shininess }
-};
-
-static Plane planeObjects[POBJECTS] =
-{
-    { 0.0f, -3.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.3f, 0.1f, shininess }
+    { 0.0f, 5.0f, 0.0f, 1.0f, sphereColor_1, 0.3f, 0.5f, 0.4f, shininess },
+    { 2.0f, 5.0f, -2.0f, 0.5f, sphereColor_2, 0.5f, 0.7f, 0.3f, shininess },
+    { -2.0f, 5.0f, 2.0f, 0.25f, sphereColor_3, 0.5f, 0.3f, 0.2f, shininess }
 };
 
 static Triangle triangleObjects[TOBJECTS] =
@@ -187,7 +181,6 @@ static Quad quadObjects[QOBJECTS] =
 };
 
 float SphereIntersect(Sphere s, Ray ray, out bool hit);
-float PlaneIntersect(Plane p, Ray ray, out bool hit);
 float QuadIntersect(Quad q, Ray ray, out bool hit);
 float TriangleIntersect(Triangle t, Ray ray, out bool hit);
 float3 SphereNormal(Sphere s, float3 pos);
@@ -195,7 +188,6 @@ float3 TriangleNormal(Triangle t);
 float3 NearestHit(Ray ray, out int hitobj, out bool anyhit);
 float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor, float4 specularColor);
 float4 SphereShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lightIntensity);
-float4 PlaneShade(float3 hitPos, float3 normal, float3 viewDir, int hitObj, float lightIntensity);
 float4 QuadShade(float3 hitPos, float3 normal, float3 viewDir, int hitObj, float lightIntensity);
 float4 TriangleShade(float3 hitPos, float3 normal, float3 viewDir, int hitObj, float lightIntensity);
 float Shadow(float3 hitPos, float3 lightPos);
@@ -255,33 +247,6 @@ float SphereIntersect(Sphere s, Ray ray, out bool hit)
             hit = true;
         }
     }
-    return t;
-}
-
-float PlaneIntersect(Plane p, Ray ray, out bool hit)
-{
-    float c = dot(ray.d, p.normal);
-    
-    float t = farPlane;
-    
-    if (abs(c) < EPSILON)
-    {
-        hit = false;
-    }
-    else
-    {
-        t = dot(p.centre - ray.o, p.normal) / c;
-        
-        if (t < EPSILON)
-        {
-            hit = false;
-        }
-        else
-        {
-            hit = true;
-        }
-    }
-    
     return t;
 }
 
@@ -409,20 +374,9 @@ PixelShaderOutput RayTracing(Ray ray)
             ray.d = reflect(ray.d, n);
             i = NearestHit(ray, hitobj, hit);
         }
-        else if (hit && hitobj < SOBJECTS + POBJECTS)
+        else if (hit && hitobj < SOBJECTS + TOBJECTS)
         {
             int object = hitobj - SOBJECTS;
-            n = planeObjects[object].normal;
-            c += PlaneShade(i, n, ray.d, object, lightIntensity);
-            
-            lightIntensity *= planeObjects[object].kr;
-            ray.o = i;
-            ray.d = reflect(ray.d, n);
-            i = NearestHit(ray, hitobj, hit);
-        }
-        else if (hit && hitobj < SOBJECTS + POBJECTS + TOBJECTS)
-        {
-            int object = hitobj - SOBJECTS - POBJECTS;
             n = TriangleNormal(triangleObjects[object]);
             c += TriangleShade(i, n, ray.d, object, lightIntensity);
             
@@ -431,9 +385,9 @@ PixelShaderOutput RayTracing(Ray ray)
             ray.d = reflect(ray.d, n);
             i = NearestHit(ray, hitobj, hit);
         }
-        else if (hit && hitobj < SOBJECTS + POBJECTS + TOBJECTS + QOBJECTS)
+        else if (hit && hitobj < SOBJECTS + TOBJECTS + QOBJECTS)
         {
-            int object = hitobj - SOBJECTS - POBJECTS - TOBJECTS;
+            int object = hitobj - SOBJECTS - TOBJECTS;
             n = quadObjects[object].normal;
             c += QuadShade(i, n, ray.d, object, lightIntensity);
             
@@ -484,23 +438,6 @@ float3 NearestHit(Ray ray, out int hitobj, out bool anyhit)
     
     int newHit = SOBJECTS;
     
-    for (i = 0; i < POBJECTS; i++)
-    {
-        bool hit = false;
-        float t = PlaneIntersect(planeObjects[i], ray, hit);
-        if (hit)
-        {
-            if (t < mint)
-            {
-                hitobj = newHit + i;
-                mint = t;
-                anyhit = true;
-            }
-        }
-    }
-    
-    newHit = SOBJECTS + POBJECTS;
-    
     for (i = 0; i < TOBJECTS; i++)
     {
         bool hit = false;
@@ -516,7 +453,7 @@ float3 NearestHit(Ray ray, out int hitobj, out bool anyhit)
         }
     }
     
-    newHit = SOBJECTS + POBJECTS + TOBJECTS;
+    newHit = SOBJECTS + TOBJECTS;
     
     for (i = 0; i < QOBJECTS; i++)
     {
@@ -558,30 +495,6 @@ float4 SphereShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, flo
     return lightColor * lightIntensity * ((shadow * Phong(normal, lightDir, viewDir, sphereObjects[hitobj].shininess, diff, spec)) + amb);
 }
 
-float4 PlaneShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lightIntensity)
-{
-    float3 lightDir = normalize(lightPos.xyz - hitPos);
-    
-    float4 color = planeObjects[hitobj].color;
-    
-    if (frac((floor(hitPos.x) + floor(hitPos.z)) * 0.5f) * 2)
-    {
-        color = float4(0.5f, 0.5f, 0.5f, 1.0f);
-    }
-    
-    //float i = floor(hitPos.xz);
-    
-    color.xyz = terrain(hitPos.xz);
-    
-    float4 diff = color * planeObjects[hitobj].Kd;
-    float4 spec = color * planeObjects[hitobj].ks;
-    float4 amb = color * 0.1f;
-    
-    float shadow = 1.0f - Shadow(hitPos, lightPos.xyz);
-    
-    return lightColor * lightIntensity * ((shadow * Phong(normal, lightDir, viewDir, planeObjects[hitobj].shininess, diff, spec)) + amb);
-}
-
 float4 QuadShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lightIntensity)
 {
     float3 lightDir = normalize(lightPos.xyz - hitPos);
@@ -607,7 +520,7 @@ float4 QuadShade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float
     
     float4 diff = color * quadObjects[hitobj].Kd;
     float4 spec = color * quadObjects[hitobj].ks;
-    float4 amb = color * 0.1f;
+    float4 amb = color * 0.3f;
     
     float shadow = 1.0f - Shadow(hitPos, lightPos.xyz);
     

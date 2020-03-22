@@ -90,7 +90,7 @@ void TessModel::Load(std::shared_ptr<DX::DeviceResources> pDeviceResources)
 	device->CreateBuffer(&bufferDesc, &initData, &mBiTangentBuffer);
 
 	//Create Index Buffer
-	bufferDesc.ByteWidth = sizeof(WORD) * mIndices.size();
+	bufferDesc.ByteWidth = sizeof(unsigned int) * mIndices.size();
 	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
 	ZeroMemory(&initData, sizeof initData);

@@ -188,62 +188,70 @@ void Sample3DSceneRenderer::Render()
 		mParametricHullShader->UseProgram(m_deviceResources);
 		mParametricFragmentShader->UseProgram(m_deviceResources);
 
+		context->RSSetState(m_tessRasterizerState.Get());
+
+		mMarbleTexture->UseTexture(m_deviceResources, 0);
+
 		////Sphere
 		//{
 		//	mParametricSphereDomainShader->UseProgram(m_deviceResources);
 		//	
 		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 10.0f)));
 		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.inverseModel, DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0.0f, 5.0f, 10.0f)));
-
+		//
 		//	mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
 		//	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
 		//	mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
 		//	mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
 		//	mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
-
+		//
 		//	context->IASetInputLayout(nullptr);
 		//	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
-
+		//
 		//	context->Draw(4, 0);
 		//}
-
+		//
 		////Elipsoid
 		//{
 		//	mParametricElipsoidDomainShader->UseProgram(m_deviceResources);
 		//	
 		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 20.0f)));
 		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.inverseModel, DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0.0f, 5.0f, 20.0f)));
-
+		//
 		//	mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
 		//	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
 		//	mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
 		//	mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
 		//	mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
-
+		//
 		//	context->IASetInputLayout(nullptr);
 		//	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
-
+		//
 		//	context->Draw(4, 0);
 		//}
-
+		//
 		////Torus
 		//{
 		//	mParametricTorusDomainShader->UseProgram(m_deviceResources);
-
+		//
 		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 30.0f)));
 		//	DirectX::XMStoreFloat4x4(&m_constantBufferData.inverseModel, DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0.0f, 5.0f, 30.0f)));
-
+		//
 		//	mConstantBuffer->UpdateBuffer(m_deviceResources, m_constantBufferData);
 		//	mConstantBuffer->UseVSBuffer(m_deviceResources, 0);
 		//	mConstantBuffer->UseGSBuffer(m_deviceResources, 0);
 		//	mConstantBuffer->UseDSBuffer(m_deviceResources, 0);
 		//	mConstantBuffer->UsePSBuffer(m_deviceResources, 0);
-
+		//
 		//	context->IASetInputLayout(nullptr);
 		//	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
-
+		//
 		//	context->Draw(4, 0);
 		//}
+
+		context->RSSetState(m_normalRasterizerState.Get());
+
+		mMarbleTexture->ReleaseTexture(m_deviceResources, 0);
 
 		if (Main::wireframe)
 		{
@@ -298,8 +306,6 @@ void Sample3DSceneRenderer::Render()
 		mRockColorTexture->ReleaseTexture(m_deviceResources, 0);
 		mRockNormalTexture->ReleaseTexture(m_deviceResources, 1);
 
-		
-
 		//Vase
 		{
 			DirectX::XMStoreFloat4x4(&m_constantBufferData.model, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 15.0f)));
@@ -317,7 +323,11 @@ void Sample3DSceneRenderer::Render()
 			mSplineDomainShader->UseProgram(m_deviceResources);
 			mSplineFragmentShader->UseProgram(m_deviceResources);
 
+			mMarbleTexture->UseTexture(m_deviceResources, 0);
+
 			mSplineModel->UseModel(m_deviceResources);
+
+			mMarbleTexture->ReleaseTexture(m_deviceResources, 0);
 		}
 
 		context->RSSetState(m_normalRasterizerState.Get());
@@ -342,6 +352,23 @@ void Sample3DSceneRenderer::Render()
 			mBillboardVertexShader->ReleaseProgram(m_deviceResources);
 			mBillboardGeometryShader->ReleaseProgram(m_deviceResources);
 			mBillboardFragmentShader->ReleaseProgram(m_deviceResources);
+		}
+
+		//Billboard Sculpture
+		{
+			mSculptureVertexShader->UseProgram(m_deviceResources);
+			mSculptureGeometryShader->UseProgram(m_deviceResources);
+			mSculptureFragmentShader->UseProgram(m_deviceResources);
+
+			mMarbleTexture->UseTexture(m_deviceResources, 0);
+
+			mSculptureModel->UseModel(m_deviceResources);
+
+			mMarbleTexture->ReleaseTexture(m_deviceResources, 0);
+
+			mSculptureVertexShader->ReleaseProgram(m_deviceResources);
+			mSculptureGeometryShader->ReleaseProgram(m_deviceResources);
+			mSculptureFragmentShader->ReleaseProgram(m_deviceResources);
 		}
 	
 		mGeometryFramebuffer->ReleaseFramebuffer(m_deviceResources);
@@ -381,6 +408,11 @@ void Sample3DSceneRenderer::Render()
 void Sample3DSceneRenderer::CreateDeviceDependentResources()
 {
 	D3D11_RASTERIZER_DESC rasterizerDesc = CD3D11_RASTERIZER_DESC(D3D11_DEFAULT);
+
+	rasterizerDesc.CullMode = D3D11_CULL_BACK;
+
+	m_deviceResources->GetD3DDevice()->CreateRasterizerState(&rasterizerDesc, m_tessRasterizerState.GetAddressOf());
+	
 	rasterizerDesc.CullMode = D3D11_CULL_NONE;
 
 	m_deviceResources->GetD3DDevice()->CreateRasterizerState(&rasterizerDesc, m_normalRasterizerState.GetAddressOf());
@@ -468,6 +500,21 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	mBillboardGeometryShader->Load(m_deviceResources);
 	mBillboardFragmentShader->Load(m_deviceResources);
 
+	std::vector<D3D11_INPUT_ELEMENT_DESC> sculptureInputLayout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 2, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	mSculptureVertexShader = std::make_unique<VertexShader>(L"SculptureVertexShader.cso", sculptureInputLayout);
+	mSculptureGeometryShader = std::make_unique<GeometryShader>(L"SculptureGeometryShader.cso");
+	mSculptureFragmentShader = std::make_unique<FragmentShader>(L"SculpturePixelShader.cso");
+
+	mSculptureVertexShader->Load(m_deviceResources);
+	mSculptureGeometryShader->Load(m_deviceResources);
+	mSculptureFragmentShader->Load(m_deviceResources);
+
 	mRayTracingFramebuffer = std::make_unique<Framebuffer>();
 	mRayMarchingFramebuffer = std::make_unique<Framebuffer>();
 	mGeometryFramebuffer = std::make_unique<Framebuffer>();
@@ -505,6 +552,9 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 	mSoldierTexture = std::make_unique<Texture>("Soldier.DDS");
 	mSoldierTexture->Load(m_deviceResources);
+
+	mMarbleTexture = std::make_unique<Texture>("Marble.DDS");
+	mMarbleTexture->Load(m_deviceResources);
 
 	// Load mesh vertices. Each vertex has a position and a color.
 	static const std::vector<VertexPositionColor> cubeVertices = 
@@ -549,6 +599,9 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 	mTessModel = std::make_unique<TessModel>("rock.sim");
 	mTessModel->Load(m_deviceResources);
+
+	mSculptureModel = std::make_unique<SculptureModel>("Sculpture.sim");
+	mSculptureModel->Load(m_deviceResources);
 
 	mSplineModel = std::make_unique<SplineModel>("vase.cur");
 	mSplineModel->Load(m_deviceResources);

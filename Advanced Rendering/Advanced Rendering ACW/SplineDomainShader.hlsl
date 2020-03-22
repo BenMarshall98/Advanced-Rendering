@@ -25,10 +25,13 @@ struct VertexShaderInput
 struct VertexShaderOutput
 {
     float4 pos : SV_POSITION;
-    float2 uv : COLOR0;
+    float3 fragPos : POSITION0;
+    float3 normal : NORMAL0;
+    float2 uv : TEXCOORD0;
 };
 
 float3 HermiteCurve(float3 p1, float3 t1, float3 p2, float3 t2, float w);
+float3 HermiteTanCurve(float3 p1, float3 t1, float3 p2, float3 t2, float w);
 float3 RotateY(float3 pos, float angle);
 
 [domain("quad")]
@@ -50,9 +53,22 @@ VertexShaderOutput main(HS_Factors input, float2 UV : SV_DomainLocation, const O
     
     pos = RotateY(pos, weight.y * PI * 2.0f);
     
+    float3 tan = HermiteTanCurve(patch[index1].pos.xyz, patch[index1].bitangent, patch[index2].pos.xyz, patch[index2].bitangent, weight.x);
+    
+    tan = RotateY(tan, weight.y * PI * 2.0f);
+    
+    tan = normalize(tan);
+    
+    float3 bitan = normalize(cross(float3(0.0f, 1.0f, 0.0f), float3(pos.x, 0.0f, pos.z)));
+    
+    output.normal = cross(bitan, tan);
+    
     output.pos = float4(pos, 1.0f);
     
     output.pos = mul(output.pos, model);
+    
+    output.fragPos = output.pos.xyz;
+    
     output.pos = mul(output.pos, view);
     output.pos = mul(output.pos, projection);
     
@@ -67,6 +83,16 @@ float3 HermiteCurve(float3 p1, float3 t1, float3 p2, float3 t2, float w)
     float b1 = pow(w, 3) - 2 * pow(w, 2) + w;
     float b2 = -2 * pow(w, 3) + 3 * pow(w, 2);
     float b3 = pow(w, 3) - pow(w, 2);
+    
+    return p1 * b0 + t1 * b1 + b2 * p2 + b3 * t2;
+}
+
+float3 HermiteTanCurve(float3 p1, float3 t1, float3 p2, float3 t2, float w)
+{
+    float b0 = 6 * pow(w, 2) - 6 * w;
+    float b2 = -6 * pow(w,  2) + 6 * w;
+    float b1 = 3 * pow(w, 2) - 2 * w + 1;
+    float b3 = 3 * pow(w, 2) - 2 * w;
     
     return p1 * b0 + t1 * b1 + b2 * p2 + b3 * t2;
 }

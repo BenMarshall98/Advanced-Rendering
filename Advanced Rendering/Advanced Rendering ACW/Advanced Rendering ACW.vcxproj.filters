@@ -116,6 +116,8 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TessModel.cpp" />
+    <ClCompile Include="SplineModel.cpp" />
+    <ClCompile Include="SculptureModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -158,6 +160,8 @@
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TessModel.h" />
+    <ClInclude Include="SplineModel.h" />
+    <ClInclude Include="SculptureModel.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -178,14 +182,12 @@
     <Image Include="Rock\Textures\Texture.jpg">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="Soldier.DDS" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Advanced Rendering ACW_TemporaryKey.pfx" />
-    <None Include="vase.cur" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\RayTracingPixelShader.hlsl">
@@ -238,11 +240,23 @@
     <FxCompile Include="RockViewHullShader.hlsl" />
     <FxCompile Include="RockDomainShader.hlsl" />
     <FxCompile Include="RockPixelShader.hlsl" />
+    <FxCompile Include="SplineDomainShader.hlsl" />
+    <FxCompile Include="SplinePixelShader.hlsl" />
+    <FxCompile Include="SplineHullShader.hlsl" />
+    <FxCompile Include="SplineVertexShader.hlsl" />
+    <FxCompile Include="SculptureVertexShader.hlsl" />
+    <FxCompile Include="SculptureGeometryShader.hlsl" />
+    <FxCompile Include="SculpturePixelShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="rock.sim" />
     <CopyFileToFolders Include="Displacement.DDS" />
     <CopyFileToFolders Include="Normal map.DDS" />
     <CopyFileToFolders Include="Texture.DDS" />
+    <CopyFileToFolders Include="Soldier.DDS" />
+    <CopyFileToFolders Include="vase.cur" />
+    <CopyFileToFolders Include="Marble.DDS" />
+    <CopyFileToFolders Include="soldiertest.dds" />
+    <CopyFileToFolders Include="Sculpture.sim" />
   </ItemGroup>
 </Project>

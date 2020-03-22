@@ -26,7 +26,9 @@ struct HS_Factors
 struct VertexShaderOutput
 {
     float4 pos : SV_POSITION;
-    float2 uv : COLOR0;
+    float3 fragPos : POSITION0;
+    float3 normal : NORMAL0;
+    float2 uv : TEXCOORD0;
 };
 
 [domain("quad")]
@@ -44,10 +46,14 @@ VertexShaderOutput main(HS_Factors input, float2 UV : SV_DomainLocation)
     
     output.pos = float4(x, y, z, 1.0f);
     
+    output.normal = normalize(output.pos.xyz);
+    
     output.pos = mul(output.pos, model);
+    
+    output.fragPos = output.pos.xyz;
+    
     output.pos = mul(output.pos, view);
     output.pos = mul(output.pos, projection);
-    
     output.uv = UV;
     
     return output;
