@@ -39,7 +39,7 @@ void main(triangle GeometryShaderInput input[3], inout TriangleStream<PixelShade
     float3 right = cross(look, up);
     float quadSize = 1.0f;
     
-    const int numSculptures = 20;
+    const int numSculptures = 10;
     
     const float3 positions[numSculptures] =
     {
@@ -48,21 +48,11 @@ void main(triangle GeometryShaderInput input[3], inout TriangleStream<PixelShade
         float3(7.5, 10, 25),
         float3(7.5, 10, 35),
         float3(7.5, 10, 45),
-        float3(7.5, 10, 55),
-        float3(7.5, 10, 65),
-        float3(7.5, 10, 75),
-        float3(7.5, 10, 85),
-        float3(7.5, 10, 95),
         float3(-7.5, 10, 5),
         float3(-7.5, 10, 15),
         float3(-7.5, 10, 25),
         float3(-7.5, 10, 35),
-        float3(-7.5, 10, 45),
-        float3(-7.5, 10, 55),
-        float3(-7.5, 10, 65),
-        float3(-7.5, 10, 75),
-        float3(-7.5, 10, 85),
-        float3(-7.5, 10, 95)
+        float3(-7.5, 10, 45)
     };
     
     PixelShaderInput output = (PixelShaderInput) 0;

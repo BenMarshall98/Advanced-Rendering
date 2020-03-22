@@ -182,7 +182,7 @@ float4 Lighting(Ray ray, Object obj, float depth)
 	float4 spec = color;
 	float4 amb = color * 0.1f;
 	
-	return lightColor * (Phong(normal, lightDir, ray.d, 40, diff, spec) + amb);
+    return float4((lightColor * (Phong(normal, lightDir, ray.d, 40, diff, spec) + amb)).xyz, 1.0f);
 }
 
 float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor, float4 specularColor)
@@ -233,94 +233,175 @@ Object Scene(float3 position)
 
 				//Sphere
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdSphere(pos, 1.0f));
-				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                
+                float tempDist = sdSphere(pos, 1.0f);
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(0.0f, 1.0f, 0.0f, 1.0f);
+                }
 
 				//Pyramid
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdPyramid(0.5f * pos, 1.0f) * 2.0f);
-				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+				tempDist = sdPyramid(0.5f * pos, 1.0f) * 2.0f;
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(0.0f, 0.0f, 1.0f, 1.0f);
+                }
 
 				//Octahedron
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdOctahedron(pos, 1.0f));
-			}
+				tempDist = sdOctahedron(pos, 1.0f);
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+                }
+            }
 
 			//Row Two
 			{
-				//Torus
+				//TriPrism
 				pos.xz = fmod(abs(position.xz), float2(30.0f, 30.0f)) - float2(12.5f, 7.5f);
-				obj.dist = unionBlend(obj.dist, sdTriPrism(pos, float2(1.0f, 1.0f)));
-				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+				float tempDist = sdTriPrism(pos, float2(1.0f, 1.0f));
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(1.0f, 1.0f, 0.0f, 1.0f);
+                }
 
-				//Sphere
+				//Box
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdSphere(pos, 1.0f));
-				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                tempDist = sdBox(pos, float3(0.5f, 0.5f, 0.5f));
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(1.0f, 0.0f, 1.0f, 1.0f);
+                }
 
-				//Pyramid
+				//Round Box
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdPyramid(0.5f * pos, 1.0f) * 2.0f);
-				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                tempDist = sdRoundBox(pos, float3(0.5f, 0.5f, 0.5f), 0.25f);
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(0.0f, 1.0f, 1.0f, 1.0f);
+                }
 
-				//Octahedron
+				//Hexagonal Prism
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdOctahedron(pos, 1.0f));
+                tempDist = sdHexPrism(pos, float2(0.5f, 1.0f));
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(1.0f, 0.5f, 0.5f, 1.0f);
+                }
+
 			}
 
 			//Row Three
 			{
-				//Torus
+				//Virtical Capsule
 				pos.xz = fmod(abs(position.xz), float2(30.0f, 30.0f)) - float2(17.5f, 7.5f);
-				obj.dist = unionBlend(obj.dist, sdTorus(pos, float2(1.0f, 0.1f)));
-				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                float tempDist = sdVerticalCapsule(pos, 2.0f, 0.1f);
+				
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(0.5f, 1.0f, 0.5f, 1.0f);
+                }
 
-				//Sphere
+				//Capped Cone
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdSphere(pos, 1.0f));
-				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                tempDist = sdCappedCone(pos, 1.0f, 1.0f, 0.5f);
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(0.5f, 0.5f, 1.0f, 1.0f);
+                }
 
-				//Pyramid
+				//RoundCone
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdPyramid(0.5f * pos, 1.0f) * 2.0f);
-				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                tempDist = sdRoundCone(pos, 1.0f, 0.5f, 1.0f);
+				
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(1.0f, 1.0f, 0.5f, 1.0f);
+                }
 
-				//Octahedron
+				//Ellipsoid
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdOctahedron(pos, 1.0f));
-			}
+                tempDist = sdEllipsoid(pos, float3(1.0f, 0.5f, 0.25f));
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(1.0f, 0.5f, 1.0f, 1.0f);
+                }
+            }
 
 			//Row Four
 			{
 				//Torus
 				pos.xz = fmod(abs(position.xz), float2(30.0f, 30.0f)) - float2(22.5f, 7.5f);
-				obj.dist = unionBlend(obj.dist, sdTorus(pos, float2(1.0f, 0.1f)));
-				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                float tempDist = sdRoundBox(pos, float3(0.5f, 0.5f, 0.5f), 0.25f);
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(0.5f, 1.0f, 1.0f, 1.0f);
+                }
 
 				//Sphere
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdSphere(pos, 1.0f));
-				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                tempDist = sdTorus(pos, float2(1.0f, 0.1f));
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(1.0f, 0.5f, 0.0f, 1.0f);
+                }
 
 				//Pyramid
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdPyramid(0.5f * pos, 1.0f) * 2.0f);
-				obj.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                tempDist = sdHexPrism(pos, float2(0.5f, 1.0f));
+				
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(0.0f, 1.0f, 0.5f, 1.0f);
+                }
 
 				//Octahedron
 				pos.xz -= float2(0.0f, 5.0f);
-				obj.dist = unionBlend(obj.dist, sdOctahedron(pos, 1.0f));
-			}
+				tempDist = sdOctahedron(pos, 1.0f);
+                
+                if (tempDist < obj.dist)
+                {
+                    obj.dist = tempDist;
+                    obj.color = float4(0.5f, 1.0f, 0.0f, 1.0f);
+                }
+            }
         }
     }
     
-    temp = sdBox((position - float3(0.0f, 5.0f, 50.f)), float3(9.5f, 5.0f, 49.5f));
+    temp = sdBox((position - float3(0.0f, 5.0f, 25.f)), float3(9.5f, 5.0f, 24.5f));
     
     if (temp < obj.dist)
     {
         obj.dist = temp;
     
-        if (abs(position.x) < 10.0f && position.z > 0.0f && position.z < 100.f)
+        if (abs(position.x) < 10.0f && position.z > 0.0f && position.z < 50.f)
         {
             float3 pos;
             pos.xz = fmod(abs(position.xz), float2(10.0f, 10.0f)) - 0.5f * float2(10.0f, 10.0f);
@@ -345,6 +426,76 @@ Object Scene(float3 position)
             obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
         }
     }
+    
+	{
+		float temp = sdTriPrism((position - float3(0.0f, 12.5f, 80.0f))/ float3(1.0f, 0.5f, 1.0f), float2(10.0f, 20.0f)) * 0.5f;
+		temp = softMax2(temp, -sdTriPrism((position - float3(0.0f, 12.5f, 60.0f)) / float3(1.0f, 0.5f, 1.0f), float2(8.0f, 0.5f)) * 0.5f, 0.3f);
+		temp = softMax2(temp, -sdTriPrism((position - float3(0.0f, 12.5f, 100.0f)) / float3(1.0f, 0.5f, 1.0f), float2(8.0f, 0.5f)) * 0.5f, 0.3f);
+		temp = subtract(temp, sdTriPrism((position - float3(0.0f, 10.5f, 80.0f)) / float3(1.0f, 0.5f, 1.0f), float2(9.0f, 18.0f)) * 0.5f);
+
+		if (abs(position.x) < 10.0f && position.z > 60.0f && position.z < 100.f)
+		{
+			float3 pos;
+			pos.xz = fmod(abs(position.xz), float2(10.0f, 10.0f)) - 0.5f * float2(10.0f, 10.0f);
+			pos.y = position.y;
+
+			float boxBottom = sdRoundBox(pos - float3(2.5f, 0.25f, 0.0f), float3(1.0f, 0.25f, 1.0f), 0.1f);
+			float boxTop = sdRoundBox(pos - float3(2.5f, 9.75f, 0.0f), float3(1.0f, 0.25f, 1.0f), 0.1f);
+			float cylinder = sdCappedCylinder(pos, float3(2.5f, 0.5f, 0.0f), float3(2.5f, 9.5f, 0.0f), 0.75f);
+
+			float tempDist = softMin2(boxBottom, cylinder, 1.0f);
+			tempDist = softMin2(tempDist, boxTop, 1.0f);
+
+			if (tempDist < obj.dist)
+			{
+				obj.dist = tempDist;
+				obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
+			}
+		}
+
+		{
+			float3 pos = position - float3(0.0f, 0.0f, 99.0f);
+
+			float boxBottom = sdRoundBox(pos - float3(2.5f, 0.25f, 0.0f), float3(1.0f, 0.25f, 1.0f), 0.1f);
+			float boxTop = sdRoundBox(pos - float3(2.5f, 9.75f, 0.0f), float3(1.0f, 0.25f, 1.0f), 0.1f);
+			float cylinder = sdCappedCylinder(pos, float3(2.5f, 0.5f, 0.0f), float3(2.5f, 9.5f, 0.0f), 0.75f);
+
+			float tempDist = softMin2(boxBottom, cylinder, 1.0f);
+			tempDist = softMin2(tempDist, boxTop, 1.0f);
+
+			if (tempDist < obj.dist)
+			{
+				obj.dist = tempDist;
+				obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
+			}
+		}
+
+		{
+			float3 pos = position - float3(-5.0f, 0.0f, 99.0f);
+
+			float boxBottom = sdRoundBox(pos - float3(2.5f, 0.25f, 0.0f), float3(1.0f, 0.25f, 1.0f), 0.1f);
+			float boxTop = sdRoundBox(pos - float3(2.5f, 9.75f, 0.0f), float3(1.0f, 0.25f, 1.0f), 0.1f);
+			float cylinder = sdCappedCylinder(pos, float3(2.5f, 0.5f, 0.0f), float3(2.5f, 9.5f, 0.0f), 0.75f);
+
+			float tempDist = softMin2(boxBottom, cylinder, 1.0f);
+			tempDist = softMin2(tempDist, boxTop, 1.0f);
+
+			if (tempDist < obj.dist)
+			{
+				obj.dist = tempDist;
+				obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
+			}
+		}
+
+		if (temp < obj.dist)
+		{
+			obj.dist = temp;
+
+			obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
+		}
+	}
+
+	
     
     {
         float tempDist = sdTerrain(position);
@@ -531,12 +682,19 @@ float sdTerrain(float3 position)
 
 float3 sdTerrainColor(float3 position)
 {
+	float interTemp = noise(position.xz * 1.0f) * 0.5f;
+	interTemp += noise(position.xz * 2.0f) * 0.25f;
+	interTemp += noise(position.xz * 4.0f) * 0.125f;
+	interTemp += noise(position.xz * 8.0f) * 0.0675f;
+
+	float3 green = lerp(float3(0.0f, 1.0f, 0.0f), float3(1.0f, 0.5f, 0.0f), interTemp);
+
     if (abs(position.x) < 10.0f && position.z > 0.0f && position.z < 100.0f)
     {
         float inter = noise(position.xz * 20.0f) * 0.1f;
         
         float3 height1 = float3(0.7f, 0.7f, 0.7f);
-        float3 height2 = float3(0.0f, 1.0f, 0.0f);
+		float3 height2 = green;
         
         return lerp(height1, height2, inter);
     }
@@ -585,7 +743,7 @@ float3 sdTerrainColor(float3 position)
         }
         
         float3 height1 = float3(0.7f, 0.7f, 0.7f);
-        float3 height2 = float3(0.0f, 1.0f, 0.0f);
+		float3 height2 = green;
         
         return lerp(height1, height2, inter);
     }
@@ -595,7 +753,7 @@ float3 sdTerrainColor(float3 position)
         float inter = noise(position.xz * 20.0f) * 0.1f;
         
         float3 height1 = float3(0.7f, 0.7f, 0.7f);
-        float3 height2 = float3(0.0f, 1.0f, 0.0f);
+		float3 height2 = green;
         
         return lerp(height1, height2, inter);
     }
@@ -673,12 +831,12 @@ float3 sdTerrainColor(float3 position)
         }
         
         float3 height1 = float3(0.7f, 0.7f, 0.7f);
-        float3 height2 = float3(0.0f, 1.0f, 0.0f);
+		float3 height2 = green;
         
         return lerp(height1, height2, inter);
     }
-    
-    return float3(0.0f, 1.0f, 0.0f);
+
+	return green;
 }
 
 float unionBlend(float pShape1, float pShape2)
