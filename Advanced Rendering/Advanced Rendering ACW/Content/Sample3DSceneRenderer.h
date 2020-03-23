@@ -63,6 +63,7 @@ namespace Advanced_Rendering
 		std::unique_ptr<Model> mModel;
 		std::unique_ptr<PointModel> mPointModel;
 		std::unique_ptr<PointModel> mFlagModel;
+		std::unique_ptr<PointModel> mCloudModel;
 		std::unique_ptr<TessModel> mTessModel;
 		std::unique_ptr<SculptureModel> mSculptureModel;
 		std::unique_ptr<SculptureModel> mPoleModel;
@@ -97,6 +98,10 @@ namespace Advanced_Rendering
 
 		std::unique_ptr<GeometryShader> mFlagGeometryShader;
 
+		std::unique_ptr<VertexShader> mCloudVertexShader;
+		std::unique_ptr<GeometryShader> mCloudGeometryShader;
+		std::unique_ptr<FragmentShader> mCloudFragmentShader;
+
 		std::unique_ptr<VertexShader> mSculptureVertexShader;
 		std::unique_ptr<GeometryShader> mSculptureGeometryShader;
 		std::unique_ptr<GeometryShader> mPoleGeometryShader;
@@ -110,6 +115,7 @@ namespace Advanced_Rendering
 		std::unique_ptr<Texture> mSoldierTexture;
 		std::unique_ptr<Texture> mMarbleTexture;
 		std::unique_ptr<Texture> mFlagTexture;
+		std::unique_ptr<Texture> mCloudTexture;
 
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSampler;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_normalRasterizerState;

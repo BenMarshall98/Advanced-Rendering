@@ -28,6 +28,11 @@ cbuffer LightConstantBuffer : register(b2)
     float4 lightPos;
 }
 
+cbuffer TimeConstantBuffer : register(b5)
+{
+	float Time;
+}
+
 // Per-pixel color data passed through the pixel shader.
 struct PixelShaderInput
 {
@@ -495,8 +500,76 @@ Object Scene(float3 position)
 		}
 	}
 
+	//Animation
+	{
+		float tempDist = sdRoundBox(position - float3(0.0f, 7.5f, -20.0f), float3(1.0f, 1.0f, 1.0f), 1.0f);
+
+		{
+			float tim = Time % 5;
+			float3 pos;
+			if (tim < 2.5f)
+			{
+				pos = lerp(float3(5.0f, 7.5f, -20.0f), float3(-5.0f, 7.5f, -20.0f), smoothstep(0.0f, 2.5f, tim));
+			}
+			else
+			{
+				pos = lerp(float3(-5.0f, 7.5f, -20.0f), float3(5.0f, 7.5f, -20.0f), smoothstep(2.5f, 5.0f, tim));
+			}
+
+			tempDist = softMin2(tempDist, sdSphere(position - pos, 1.0f), 1.0f);
+		}
+
+		{
+			float tim = Time % 5;
+			float3 pos;
+			if (tim < 2.5f)
+			{
+				pos = lerp(float3(0.0f, 7.5f, -15.0f), float3(0.0f, 7.5f, -25.0f), smoothstep(0.0f, 2.5f, tim));
+			}
+			else
+			{
+				pos = lerp(float3(0.0f, 7.5f, -25.0f), float3(0.0f, 7.5f, -15.0f), smoothstep(2.5f, 5.0f, tim));
+			}
+
+			tempDist = softMax2(tempDist, -sdSphere(position - pos, 1.0f), 1.0f);
+		}
+
+		if (tempDist < obj.dist)
+		{
+			obj.dist = tempDist;
+			obj.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+	}
+
+	//Arch
+	{
+		float tempDist = sdBox(position - float3(0.0f, 10.0f, -50.0f), float3(20.0f, 20.0f, 5.0f));
+		tempDist = softMax2(tempDist, -sdBox(position - float3(0.0f, 7.5f, -50.0f), float3(5.0f, 7.5f, 5.0f)), 0.5f);
+		tempDist = softMax2(tempDist, -sdBox(position - float3(12.50f, 4.5f, -50.0f), float3(3.0f, 4.5f, 5.0f)), 0.5f);
+		tempDist = softMax2(tempDist, -sdBox(position - float3(-12.5f, 4.5f, -50.0f), float3(3.0f, 4.5f, 5.0f)), 0.5f);
+		tempDist = softMax2(tempDist, -sdCappedCylinder(position, float3(0.0f, 16.0f, -45.0f), float3(0.0f, 16.0f, -55.0f), 5.0f), 0.5f);
+		tempDist = softMax2(tempDist, -sdCappedCylinder(position, float3(12.5f, 10.0f, -45.0f), float3(12.5f, 10.0f, -55.0f), 3.0f), 0.5f);
+		tempDist = softMax2(tempDist, -sdCappedCylinder(position, float3(-12.5f, 10.0f, -45.0f), float3(-12.5f, 10.0f, -55.0f), 3.0f), 0.5f);
+		tempDist = unionBlend(tempDist, sdBox(position - float3(7.5f, 2.5f, -44.0f), float3(1.0f, 2.5f, 1.0f)));
+		tempDist = unionBlend(tempDist, sdBox(position - float3(-7.5f, 2.5f, -44.0f), float3(1.0f, 2.5f, 1.0f)));
+		tempDist = unionBlend(tempDist, sdBox(position - float3(17.5f, 2.5f, -44.0f), float3(1.0f, 2.5f, 1.0f)));
+		tempDist = unionBlend(tempDist, sdBox(position - float3(-17.5f, 2.5f, -44.0f), float3(1.0f, 2.5f, 1.0f)));
+		tempDist = unionBlend(tempDist, sdBox(position - float3(7.5f, 17.5f, -44.0f), float3(1.0f, 2.5f, 1.0f)));
+		tempDist = unionBlend(tempDist, sdBox(position - float3(-7.5f, 17.5f, -44.0f), float3(1.0f, 2.5f, 1.0f)));
+		tempDist = unionBlend(tempDist, sdBox(position - float3(17.5f, 17.5f, -44.0f), float3(1.0f, 2.5f, 1.0f)));
+		tempDist = unionBlend(tempDist, sdBox(position - float3(-17.5f, 17.5f, -44.0f), float3(1.0f, 2.5f, 1.0f)));
+		tempDist = softMin2(tempDist, sdCappedCylinder(position, float3(7.5f, 5.0f, -44.0f), float3(7.5f, 15.0f, -44.0f), 0.75f), 1.0f);
+		tempDist = softMin2(tempDist, sdCappedCylinder(position, float3(-7.5f, 5.0f, -44.0f), float3(-7.5f, 15.0f, -44.0f), 0.75f), 1.0f);
+		tempDist = softMin2(tempDist, sdCappedCylinder(position, float3(17.5f, 5.0f, -44.0f), float3(17.5f, 15.0f, -44.0f), 0.75f), 1.0f);
+		tempDist = softMin2(tempDist, sdCappedCylinder(position, float3(-17.5f, 5.0f, -44.0f), float3(-17.5f, 15.0f, -44.0f), 0.75f), 1.0f);
+
+		if (tempDist < obj.dist)
+		{
+			obj.dist = tempDist;
+			obj.color = float4(0.84f, 0.77f, 0.67f, 1.0f);
+		}
+	}
 	
-    
     {
         float tempDist = sdTerrain(position);
         
@@ -508,7 +581,7 @@ Object Scene(float3 position)
         }
     }
     
-    
+	
 
 	return obj;
 }
